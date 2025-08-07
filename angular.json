@@ -31,11 +31,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "src/favicon.ico",
+              "src/assets"
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           },
           "configurations": {
             "production": {
@@ -87,12 +87,13 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "c07eff10-cee5-4327-9881-c0c5bb9e2ae4"
   }
 }

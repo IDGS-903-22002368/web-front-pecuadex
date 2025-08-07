@@ -1,0 +1,943 @@
+<nav
+  class="navbar navbar-expand-lg navbar-light fixed-top"
+  [class.navbar-scrolled]="isScrolled"
+>
+  <div class="container">
+    <a class="navbar-brand" href="#">
+      <img src="assets/logo-pecuadex.webp" alt="Pecuadex" height="40" />
+      <span class="brand-text">Pecuadex</span>
+    </a>
+
+    <button class="navbar-toggler" type="button" (click)="toggleNavbar()">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" [class.show]="navbarOpen">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="#inicio">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#producto">Producto</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#caracteristicas">Características</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#beneficios">Beneficios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#testimonios">Testimonios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#precios">Planes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#contacto">Contacto</a>
+        </li>
+      </ul>
+
+      <div class="d-flex ms-3">
+        <button class="btn btn-outline-custom me-2" routerLink="/auth/login">
+          <i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión
+        </button>
+        <button class="btn btn-primary-custom" routerLink="/auth/register">
+          <i class="fas fa-user-plus me-1"></i> Registrarse
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section id="inicio" class="hero-section">
+  <div class="container">
+    <div class="row align-items-center min-vh-100 pt-5">
+      <div class="col-lg-6" data-aos="fade-right">
+        <span class="badge bg-success mb-3">🐄 Innovación en Ganadería</span>
+        <h1 class="display-4 fw-bold mb-4">
+          Revoluciona tu <span class="text-gradient">Ganadería</span> con
+          <span class="text-gradient">Tecnología GPS</span>
+        </h1>
+        <p class="lead mb-4">
+          Pecuadex GPS te permite localizar y gestionar tu ganado en tiempo real
+          desde cualquier lugar. Optimiza tu producción, reduce pérdidas y toma
+          decisiones inteligentes con datos precisos.
+        </p>
+
+        <div class="hero-stats mb-4">
+          <div class="stat-item">
+            <i class="fas fa-map-marker-alt text-primary"></i>
+            <div>
+              <strong>100%</strong>
+              <span>Cobertura GPS</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-battery-full text-success"></i>
+            <div>
+              <strong>365 días</strong>
+              <span>Batería</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-shield-alt text-info"></i>
+            <div>
+              <strong>IP67</strong>
+              <span>Resistencia</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3 flex-wrap">
+          <button
+            class="btn btn-primary-custom btn-lg"
+            (click)="scrollToSection('cotizacion')"
+          >
+            <i class="fas fa-calculator me-2"></i> Solicitar Cotización
+          </button>
+        </div>
+
+        <div class="mt-4">
+          <small class="text-muted">
+            <i class="fas fa-check-circle text-success me-1"></i>
+          </small>
+        </div>
+      </div>
+
+      <div class="col-lg-6" data-aos="fade-left">
+        <div class="hero-image-container">
+          <img
+            src="assets/hero-cow-gps.webp"
+            alt="Pecuadex GPS"
+            class="img-fluid float-animation"
+          />
+          <div class="floating-badge badge-1 pulse-animation">
+            <i class="fas fa-satellite"></i>
+          </div>
+          <div class="floating-badge badge-2">
+            <i class="fas fa-mobile-alt"></i>
+          </div>
+          <div class="floating-badge badge-3">
+            <i class="fas fa-chart-line"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wave-container">
+    <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path
+        d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,
+      250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,
+      3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
+        fill="#ffffff"
+      ></path>
+    </svg>
+  </div>
+</section>
+
+<!-- Producto Section -->
+<section id="producto" class="py-5">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="badge bg-primary mb-3">Nuestro Producto</span>
+      <h2 class="display-5 fw-bold">Pecuadex GPS Localizador</h2>
+      <p class="lead">
+        El dispositivo más avanzado para el monitoreo de ganado
+      </p>
+    </div>
+
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4" data-aos="fade-right">
+        <div
+          class="product-showcase"
+          style="justify-content: center; align-items: center; display: flex"
+        >
+          <img
+            src="assets/gps-device.png"
+            alt="Dispositivo GPS"
+            class="img-fluid"
+            style="width: 100%"
+          />
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4" data-aos="fade-left">
+        <h3 class="mb-4">Especificaciones Técnicas</h3>
+
+        <div class="spec-list">
+          <div class="spec-item">
+            <i class="fas fa-microchip text-primary"></i>
+            <div>
+              <strong>Procesador de última generación</strong>
+              <p>
+                Chip GPS/GLONASS de alta precisión con margen de error < 5
+                metros
+              </p>
+            </div>
+          </div>
+
+          <div class="spec-item">
+            <i class="fas fa-battery-full text-success"></i>
+            <div>
+              <strong>Batería de larga duración</strong>
+              <p>Hasta 365 días con una sola carga, panel solar opcional</p>
+            </div>
+          </div>
+
+          <div class="spec-item">
+            <i class="fas fa-wifi text-info"></i>
+            <div>
+              <strong>Conectividad múltiple</strong>
+              <p>4G LTE, LoRaWAN, Bluetooth 5.0 para máxima cobertura</p>
+            </div>
+          </div>
+
+          <div class="spec-item">
+            <i class="fas fa-shield-alt text-warning"></i>
+            <div>
+              <strong>Resistente y duradero</strong>
+              <p>Certificación IP67, resistente a agua, polvo y golpes</p>
+            </div>
+          </div>
+
+          <div class="spec-item">
+            <i class="fas fa-temperature-high text-danger"></i>
+            <div>
+              <strong>Sensores integrados</strong>
+              <p>Temperatura, movimiento, ritmo cardíaco (opcional)</p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          class="btn btn-primary-custom mt-3"
+          (click)="downloadDatasheet()"
+        >
+          <i class="fas fa-download me-2"></i> Descargar Ficha Técnica
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Características Section -->
+<section id="caracteristicas" class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="badge bg-success mb-3">Características</span>
+      <h2 class="display-5 fw-bold">
+        Todo lo que necesitas en una sola plataforma
+      </h2>
+      <p class="lead">Gestión integral para ganadería moderna</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+        <div class="card-custom h-100 text-center">
+          <div class="feature-icon gradient-primary">
+            <i class="fas fa-map-marked-alt"></i>
+          </div>
+          <h4 class="mt-3">Localización en Tiempo Real</h4>
+          <p>
+            Monitorea la ubicación exacta de cada animal las 24/7 desde tu
+            smartphone o computadora
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="200">
+        <div class="card-custom h-100 text-center">
+          <div class="feature-icon gradient-accent">
+            <i class="fas fa-bell"></i>
+          </div>
+          <h4 class="mt-3">Alertas Inteligentes</h4>
+          <p>
+            Recibe notificaciones cuando el ganado sale de zonas seguras o
+            presenta comportamiento anormal
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="300">
+        <div class="card-custom h-100 text-center">
+          <div class="feature-icon gradient-primary">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <h4 class="mt-3">Analytics Avanzado</h4>
+          <p>
+            Análisis de patrones de movimiento, áreas de pastoreo y
+            comportamiento del rebaño
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="400">
+        <div class="card-custom h-100 text-center">
+          <div class="feature-icon gradient-accent">
+            <i class="fas fa-users"></i>
+          </div>
+          <h4 class="mt-3">Gestión de Inventario</h4>
+          <p>
+            Control completo de crías, adultos, historial médico y genealogía
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="500">
+        <div class="card-custom h-100 text-center">
+          <div class="feature-icon gradient-primary">
+            <i class="fas fa-draw-polygon"></i>
+          </div>
+          <h4 class="mt-3">Cercas Virtuales</h4>
+          <p>
+            Define zonas de pastoreo y recibe alertas si el ganado las abandona
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="600">
+        <div class="card-custom h-100 text-center">
+          <div class="feature-icon gradient-accent">
+            <i class="fas fa-mobile-alt"></i>
+          </div>
+          <h4 class="mt-3">App Móvil Completa</h4>
+          <p>
+            Acceso total desde iOS y Android con interfaz intuitiva y fácil de
+            usar
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Beneficios Section -->
+<section id="beneficios" class="py-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4" data-aos="fade-right">
+        <span class="badge bg-warning text-dark mb-3">Beneficios</span>
+        <h2 class="display-5 fw-bold mb-4">¿Por qué elegir Pecuadex?</h2>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="benefit-content">
+            <h5>Reduce Pérdidas</h5>
+            <p>
+              Disminuye hasta un 95% las pérdidas por robo o extravío de ganado
+            </p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="benefit-content">
+            <h5>Ahorra Tiempo</h5>
+            <p>
+              Reduce en 70% el tiempo dedicado a búsqueda y conteo de animales
+            </p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="benefit-content">
+            <h5>Mejora Productividad</h5>
+            <p>Aumenta hasta 30% la eficiencia en manejo de rebaños</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <i class="fas fa-leaf"></i>
+          </div>
+          <div class="benefit-content">
+            <h5>Gestión Sustentable</h5>
+            <p>Optimiza el uso de pastizales y recursos naturales</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4" data-aos="fade-left">
+        <div class="stats-container">
+          <div class="stat-card">
+            <h3 class="stat-number" data-count="500">0</h3>
+            <p>Ganaderos Activos</p>
+          </div>
+          <div class="stat-card">
+            <h3 class="stat-number" data-count="50000">0</h3>
+            <p>Cabezas Monitoreadas</p>
+          </div>
+          <div class="stat-card">
+            <h3 class="stat-number" data-count="99">0</h3>
+            <span>%</span>
+            <p>Satisfacción</p>
+          </div>
+          <div class="stat-card">
+            <h3 class="stat-number" data-count="24">0</h3>
+            <span>/7</span>
+            <p>Soporte</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonios Section -->
+<section id="testimonios" class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="badge bg-info text-white mb-3">Testimonios</span>
+      <h2 class="display-5 fw-bold">Lo que dicen nuestros clientes</h2>
+      <p class="lead">Historias de éxito de ganaderos como tú</p>
+    </div>
+
+    <owl-carousel-o [options]="testimonialOptions">
+      <ng-container *ngFor="let testimonial of testimonials">
+        <ng-template carouselSlide>
+          <div class="testimonial-card">
+            <div class="quote-icon">
+              <i class="fas fa-quote-left"></i>
+            </div>
+            <p class="testimonial-text">{{ testimonial.text }}</p>
+            <div class="testimonial-author">
+              <img
+                [src]="testimonial.avatar"
+                [alt]="testimonial.name"
+                class="author-avatar"
+              />
+              <div>
+                <h6>{{ testimonial.name }}</h6>
+                <small
+                  >{{ testimonial.role }} - {{ testimonial.location }}</small
+                >
+              </div>
+            </div>
+            <div class="rating">
+              <i
+                class="fas fa-star text-warning"
+                *ngFor="let star of [1,2,3,4,5]"
+              ></i>
+            </div>
+          </div>
+        </ng-template>
+      </ng-container>
+    </owl-carousel-o>
+  </div>
+</section>
+
+<!-- Planes y Precios Section -->
+<section id="precios" class="py-5">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="badge bg-success mb-3">Planes</span>
+      <h2 class="display-5 fw-bold">Elige el plan perfecto para ti</h2>
+      <p class="lead">Soluciones flexibles para todo tipo de ganadería</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4" data-aos="flip-left" data-aos-delay="100">
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h4>Básico</h4>
+            <p class="text-muted">Para pequeños ganaderos</p>
+            <div class="price">
+              <span class="currency">$</span>
+              <span class="amount">99</span>
+              <span class="period">/mes</span>
+            </div>
+          </div>
+          <ul class="pricing-features">
+            <li>
+              <i class="fas fa-check text-success"></i> Hasta 50 dispositivos
+            </li>
+            <li>
+              <i class="fas fa-check text-success"></i> Localización en tiempo
+              real
+            </li>
+            <li><i class="fas fa-check text-success"></i> Alertas básicas</li>
+            <li><i class="fas fa-check text-success"></i> App móvil</li>
+            <li><i class="fas fa-check text-success"></i> Soporte por email</li>
+            <li><i class="fas fa-times text-muted"></i> Analytics avanzado</li>
+            <li><i class="fas fa-times text-muted"></i> API personalizada</li>
+          </ul>
+          <button class="btn btn-outline-custom w-100">Empezar Ahora</button>
+        </div>
+      </div>
+
+      <div class="col-lg-4" data-aos="flip-left" data-aos-delay="200">
+        <div class="pricing-card featured">
+          <div class="badge bg-warning text-dark mb-2">Más Popular</div>
+          <div class="pricing-header">
+            <h4>Profesional</h4>
+            <p class="text-muted">Para ganadería mediana</p>
+            <div class="price">
+              <span class="currency">$</span>
+              <span class="amount">199</span>
+              <span class="period">/mes</span>
+            </div>
+          </div>
+          <ul class="pricing-features">
+            <li>
+              <i class="fas fa-check text-success"></i> Hasta 200 dispositivos
+            </li>
+            <li>
+              <i class="fas fa-check text-success"></i> Localización en tiempo
+              real
+            </li>
+            <li>
+              <i class="fas fa-check text-success"></i> Alertas inteligentes
+            </li>
+            <li><i class="fas fa-check text-success"></i> App móvil + Web</li>
+            <li>
+              <i class="fas fa-check text-success"></i> Soporte prioritario 24/7
+            </li>
+            <li>
+              <i class="fas fa-check text-success"></i> Analytics avanzado
+            </li>
+            <li><i class="fas fa-times text-muted"></i> API personalizada</li>
+          </ul>
+          <button class="btn btn-primary-custom w-100">Empezar Ahora</button>
+        </div>
+      </div>
+
+      <div class="col-lg-4" data-aos="flip-left" data-aos-delay="300">
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h4>Enterprise</h4>
+            <p class="text-muted">Para grandes operaciones</p>
+            <div class="price">
+              <span class="currency">$</span>
+              <span class="amount">Personalizado</span>
+            </div>
+          </div>
+          <ul class="pricing-features">
+            <li>
+              <i class="fas fa-check text-success"></i> Dispositivos ilimitados
+            </li>
+            <li>
+              <i class="fas fa-check text-success"></i> Todas las
+              características
+            </li>
+            <li>
+              <i class="fas fa-check text-success"></i> Alertas personalizadas
+            </li>
+            <li>
+              <i class="fas fa-check text-success"></i> Plataforma completa
+            </li>
+            <li><i class="fas fa-check text-success"></i> Soporte dedicado</li>
+            <li><i class="fas fa-check text-success"></i> Analytics + BI</li>
+            <li>
+              <i class="fas fa-check text-success"></i> API y integraciones
+            </li>
+          </ul>
+          <button class="btn btn-outline-custom w-100" (click)="contactSales()">
+            Contactar Ventas
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Cotización Section -->
+<section id="cotizacion" class="py-5 bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6 mb-4" data-aos="fade-right">
+        <span class="badge bg-primary mb-3">Cotización</span>
+        <h2 class="display-5 fw-bold mb-4">
+          Solicita tu cotización personalizada
+        </h2>
+        <p class="lead mb-4">
+          Cuéntanos sobre tu operación ganadera y te enviaremos una propuesta
+          adaptada a tus necesidades específicas.
+        </p>
+
+        <div class="info-box">
+          <h5>
+            <i class="fas fa-clock text-primary me-2"></i> Respuesta Rápida
+          </h5>
+          <p>Recibirás tu cotización en menos de 24 horas</p>
+        </div>
+
+        <div class="info-box">
+          <h5>
+            <i class="fas fa-headset text-success me-2"></i> Asesoría Gratuita
+          </h5>
+          <p>
+            Un especialista te contactará para entender mejor tus necesidades
+          </p>
+        </div>
+
+        <div class="info-box">
+          <h5>
+            <i class="fas fa-gift text-warning me-2"></i> Promociones Especiales
+          </h5>
+          <p>Descuentos por volumen y planes de financiamiento disponibles</p>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4" data-aos="fade-left">
+        <div class="card-custom">
+          <form [formGroup]="cotizacionForm" (ngSubmit)="submitCotizacion()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Nombre Completo *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="nombreCliente"
+                  placeholder="Juan Pérez"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Email *</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  formControlName="emailCliente"
+                  placeholder="juan@ejemplo.com"
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Teléfono *</label>
+                <input
+                  type="tel"
+                  class="form-control"
+                  formControlName="telefono"
+                  placeholder="+52 123 456 7890"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Empresa</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="empresa"
+                  placeholder="Rancho El Ejemplo"
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Cantidad de Dispositivos *</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="cantidadDispositivos"
+                  placeholder="50"
+                  min="1"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Cantidad de Animales *</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="cantidadAnimales"
+                  placeholder="100"
+                  min="1"
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Tipo de Ganado *</label>
+                <select class="form-control" formControlName="tipoGanado">
+                  <option value="">Seleccionar...</option>
+                  <option value="bovino">Bovino</option>
+                  <option value="ovino">Ovino</option>
+                  <option value="caprino">Caprino</option>
+                  <option value="porcino">Porcino</option>
+                  <option value="equino">Equino</option>
+                  <option value="mixto">Mixto</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Hectáreas de Terreno *</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="hectareas"
+                  placeholder="100"
+                  min="1"
+                />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Funcionalidades de Interés</label>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  value="alertas-avanzadas"
+                  id="check1"
+                  (change)="onFuncionalidadChange($event)"
+                />
+                <label class="form-check-label" for="check1">
+                  Alertas Avanzadas (salud, reproducción)
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  value="analytics"
+                  id="check2"
+                  (change)="onFuncionalidadChange($event)"
+                />
+                <label class="form-check-label" for="check2">
+                  Analytics y Reportes Detallados
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  value="integracion-erp"
+                  id="check3"
+                  (change)="onFuncionalidadChange($event)"
+                />
+                <label class="form-check-label" for="check3">
+                  Integración con ERP/Software existente
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  value="multi-usuario"
+                  id="check4"
+                  (change)="onFuncionalidadChange($event)"
+                />
+                <label class="form-check-label" for="check4">
+                  Gestión Multi-usuario
+                </label>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Comentarios Adicionales</label>
+              <textarea
+                class="form-control"
+                formControlName="comentarios"
+                rows="3"
+                placeholder="Cuéntanos más sobre tus necesidades..."
+              ></textarea>
+            </div>
+
+            <div class="alert alert-info" *ngIf="cotizacionEstimada > 0">
+              <i class="fas fa-calculator me-2"></i>
+              <strong>Estimación Preliminar:</strong> ${{ cotizacionEstimada |
+              number:'1.2-2' }} MXN
+              <small class="d-block mt-1"
+                >*Precio final puede variar según configuración
+                específica</small
+              >
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary-custom w-100"
+              [disabled]="cotizacionForm.invalid || submitting"
+            >
+              <i class="fas fa-paper-plane me-2" *ngIf="!submitting"></i>
+              <span
+                class="spinner-border spinner-border-sm me-2"
+                *ngIf="submitting"
+              ></span>
+              {{ submitting ? 'Enviando...' : 'Solicitar Cotización' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contacto Section -->
+<section id="contacto" class="py-5">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="badge bg-dark mb-3">Contacto</span>
+      <h2 class="display-5 fw-bold">
+        ¿Tienes preguntas? Estamos aquí para ayudarte
+      </h2>
+      <p class="lead">Múltiples canales para atenderte mejor</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4" data-aos="zoom-in">
+        <div class="contact-card text-center">
+          <div class="contact-icon gradient-primary">
+            <i class="fas fa-phone"></i>
+          </div>
+          <h5>Teléfono</h5>
+          <p class="mb-1">Ventas: +52 (477) 123-4567</p>
+          <p>Soporte: +52 (477) 123-4568</p>
+          <small class="text-muted">Lun-Vie: 9:00 AM - 6:00 PM</small>
+        </div>
+      </div>
+
+      <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="100">
+        <div class="contact-card text-center">
+          <div class="contact-icon gradient-accent">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <h5>Email</h5>
+          <p class="mb-1">ventas@pecuadex.com</p>
+          <p>soporte@pecuadex.com</p>
+          <small class="text-muted">Respuesta en menos de 24 horas</small>
+        </div>
+      </div>
+
+      <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="200">
+        <div class="contact-card text-center">
+          <div class="contact-icon gradient-primary">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <h5>Oficina</h5>
+          <p class="mb-1">León, Guanajuato</p>
+          <p>México</p>
+          <small class="text-muted">Visitas con cita previa</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-5">
+      <div class="col-12 text-center">
+        <h4 class="mb-4">Síguenos en Redes Sociales</h4>
+        <div class="social-links">
+          <a href="#" class="social-link" target="_blank">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="#" class="social-link" target="_blank">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="#" class="social-link" target="_blank">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+          <a href="#" class="social-link" target="_blank">
+            <i class="fab fa-youtube"></i>
+          </a>
+          <a href="#" class="social-link" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-4 mb-4">
+        <img
+          src="assets/logo-pecuadex.webp"
+          alt="Pecuadex"
+          height="40"
+          class="mb-3"
+        />
+        <p class="text-white-50">
+          Líderes en tecnología GPS para ganadería. Transformando la manera en
+          que los ganaderos gestionan y protegen su patrimonio.
+        </p>
+        <div class="footer-badges">
+          <img src="assets/iso-badge.png" alt="ISO" height="50" />
+          <img src="assets/certified-badge.png" alt="Certificado" height="50" />
+        </div>
+      </div>
+
+      <div class="col-lg-2 col-md-6 mb-4">
+        <h6 class="text-white mb-3">Enlaces Rápidos</h6>
+        <ul class="footer-links">
+          <li><a href="#inicio">Inicio</a></li>
+          <li><a href="#producto">Producto</a></li>
+          <li><a href="#caracteristicas">Características</a></li>
+          <li><a href="#precios">Planes</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-2 col-md-6 mb-4">
+        <h6 class="text-white mb-3">Recursos</h6>
+        <ul class="footer-links">
+          <li><a href="#">Centro de Ayuda</a></li>
+          <li><a href="#">Documentación</a></li>
+          <li><a href="#">API</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Casos de Éxito</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-2 col-md-6 mb-4">
+        <h6 class="text-white mb-3">Legal</h6>
+        <ul class="footer-links">
+          <li><a href="#">Términos y Condiciones</a></li>
+          <li><a href="#">Política de Privacidad</a></li>
+          <li><a href="#">Cookies</a></li>
+          <li><a href="#">Garantía</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-2 col-md-6 mb-4">
+        <h6 class="text-white mb-3">Newsletter</h6>
+        <p class="text-white-50 small">
+          Recibe las últimas noticias y actualizaciones
+        </p>
+        <form class="newsletter-form">
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="Tu email" />
+            <button class="btn btn-primary" type="submit">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <hr class="border-secondary my-4" />
+
+    <div class="row">
+      <div class="col-12 text-center">
+        <p class="text-white-50 mb-0">
+          © 2025 Pecuadex. Todos los derechos reservados. Hecho con
+          <i class="fas fa-heart text-danger"></i> en México
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Botón WhatsApp Flotante -->
+<a
+  href="https://wa.me/524721379165?text=Hola,%20me%20interesa%20conocer%20más%20sobre%20Pecuadex%20GPS"
+  target="_blank"
+  class="whatsapp-float"
+>
+  <i class="fab fa-whatsapp"></i>
+</a>
+
+<!-- Botón Scroll to Top -->
+<button class="scroll-top" [class.show]="showScrollTop" (click)="scrollToTop()">
+  <i class="fas fa-arrow-up"></i>
+</button>
