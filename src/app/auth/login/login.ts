@@ -21,6 +21,7 @@ export class LoginComponent implements OnInit {
   loading = false;
   showPassword = false;
   returnUrl: string = '/';
+  isDemo = false;
 
   constructor(
     private fb: FormBuilder,
@@ -38,6 +39,16 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    this.isDemo = this.route.snapshot.queryParams['demo'] === 'true';
+
+    // Si es demo, prellenar credenciales
+    if (this.isDemo) {
+      this.loginForm.patchValue({
+        email: 'demo@pecuadex.com',
+        password: 'Demo2024',
+      });
+      this.toastr.info('Credenciales de demo prellenadas', 'Modo Demo');
+    }
 
     // Si ya está logueado, redirigir
     if (this.authService.isLoggedIn()) {
@@ -101,13 +112,5 @@ export class LoginComponent implements OnInit {
     } else {
       this.router.navigate([this.returnUrl]);
     }
-  }
-
-  loginWithGoogle(): void {
-    this.toastr.info('Función disponible próximamente', 'Google Login');
-  }
-
-  loginWithFacebook(): void {
-    this.toastr.info('Función disponible próximamente', 'Facebook Login');
   }
 }

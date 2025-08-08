@@ -156,7 +156,7 @@
           style="justify-content: center; align-items: center; display: flex"
         >
           <img
-            src="assets/gps-device.png"
+            src="assets/gps-device.webp"
             alt="Dispositivo GPS"
             class="img-fluid"
             style="width: 100%"
@@ -402,37 +402,50 @@
       <p class="lead">Historias de éxito de ganaderos como tú</p>
     </div>
 
-    <owl-carousel-o [options]="testimonialOptions">
-      <ng-container *ngFor="let testimonial of testimonials">
-        <ng-template carouselSlide>
-          <div class="testimonial-card">
-            <div class="quote-icon">
-              <i class="fas fa-quote-left"></i>
-            </div>
-            <p class="testimonial-text">{{ testimonial.text }}</p>
-            <div class="testimonial-author">
-              <img
-                [src]="testimonial.avatar"
-                [alt]="testimonial.name"
-                class="author-avatar"
-              />
-              <div>
-                <h6>{{ testimonial.name }}</h6>
-                <small
-                  >{{ testimonial.role }} - {{ testimonial.location }}</small
-                >
+    <!-- Loading indicator -->
+    <div *ngIf="loading" class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando testimonios...</span>
+      </div>
+    </div>
+
+    <!-- Solo mostrar carrusel cuando hay datos -->
+    <ng-container *ngIf="!loading && testimonials && testimonials.length > 0">
+      <owl-carousel-o [options]="testimonialOptions">
+        <ng-container *ngFor="let testimonial of testimonials">
+          <ng-template carouselSlide>
+            <div class="testimonial-card">
+              <div class="quote-icon">
+                <i class="fas fa-quote-left"></i>
+              </div>
+              <p class="testimonial-text">{{ testimonial.descripcion }}</p>
+              <div class="testimonial-author">
+                <img
+                  [src]="testimonial.avatar || 'assets/default-avatar.jpg'"
+                  [alt]="testimonial.name || 'Usuario'"
+                  class="author-avatar"
+                />
+                <div>
+                  <h6>{{ testimonial.name || 'Usuario Anónimo' }}</h6>
+                  <small>{{ testimonial.role || 'Cliente' }}</small>
+                </div>
+              </div>
+              <div class="rating">
+                <i
+                  class="fas fa-star text-warning"
+                  *ngFor="let star of getStarsArray(testimonial.calificacion)"
+                ></i>
               </div>
             </div>
-            <div class="rating">
-              <i
-                class="fas fa-star text-warning"
-                *ngFor="let star of [1,2,3,4,5]"
-              ></i>
-            </div>
-          </div>
-        </ng-template>
-      </ng-container>
-    </owl-carousel-o>
+          </ng-template>
+        </ng-container>
+      </owl-carousel-o>
+    </ng-container>
+
+    <!-- Mensaje cuando no hay testimonios -->
+    <div *ngIf="!loading && testimonials?.length === 0" class="text-center">
+      <p class="text-muted">No hay testimonios disponibles en este momento.</p>
+    </div>
   </div>
 </section>
 

@@ -1,16 +1,81 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  private baseUrl = 'http://localhost:5000/api';
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
-  // Productos
+  // ========== COTIZACIONES ==========
+  solicitarCotizacion(cotizacion: any): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/cotizacion/solicitar`,
+      cotizacion
+    );
+  }
+
+  listarCotizaciones(
+    estado?: string,
+    page: number = 1,
+    pageSize: number = 10
+  ): Observable<any> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+
+    return this.http.get<any>(`${this.baseUrl}/cotizacion/listar`, { params });
+  }
+
+  obtenerCotizacion(id: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/cotizacion/${id}`);
+  }
+
+  enviarCotizacion(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/cotizacion/enviar`, data);
+  }
+
+  aceptarCotizacion(id: number): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/cotizacion/${id}/aceptar`, {});
+  }
+
+  crearClienteDesdeCotizacion(id: number, password?: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/cotizacion/${id}/crear-cliente`,
+      {
+        cotizacionId: id,
+        password,
+      }
+    );
+  }
+
+  actualizarEstadoCotizacion(
+    id: number,
+    estado: string,
+    notas: string
+  ): Observable<any> {
+    return this.http.put<any>(
+      `${this.baseUrl}/cotizacion/${id}/actualizar-estado`,
+      {
+        estado,
+        notas,
+      }
+    );
+  }
+
+  obtenerEstadisticasCotizaciones(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/cotizacion/estadisticas`);
+  }
+
+  // ========== PRODUCTOS ==========
   getProductos(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/producto/ListaProductos`);
   }
@@ -35,7 +100,7 @@ export class ApiService {
     );
   }
 
-  // Proveedores
+  // ========== PROVEEDORES ==========
   getProveedores(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/proveedores/ListaProveedores`);
   }
@@ -60,7 +125,7 @@ export class ApiService {
     );
   }
 
-  // Piezas
+  // ========== PIEZAS/INVENTARIO ==========
   getPiezas(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/pieza/ListaPiezas`);
   }
@@ -80,7 +145,7 @@ export class ApiService {
     return this.http.delete<any>(`${this.baseUrl}/pieza/EliminarPieza/${id}`);
   }
 
-  // Compras
+  // ========== COMPRAS ==========
   getCompras(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/compras/ListaCompras`);
   }
@@ -89,7 +154,7 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/compras/AgregarCompra`, compra);
   }
 
-  // Ventas
+  // ========== VENTAS ==========
   getVentas(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/ventas/ListaVentas`);
   }
@@ -98,7 +163,7 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/ventas/AgregarVenta`, venta);
   }
 
-  // Comentarios
+  // ========== COMENTARIOS ==========
   getComentarios(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/comentarios/ListaComentarios`);
   }
@@ -116,7 +181,20 @@ export class ApiService {
     );
   }
 
-  // Manuales
+  updateComentario(id: number, comentario: any): Observable<any> {
+    return this.http.put<any>(
+      `${this.baseUrl}/comentarios/ModificarComentario/${id}`,
+      comentario
+    );
+  }
+
+  deleteComentario(id: number): Observable<any> {
+    return this.http.delete<any>(
+      `${this.baseUrl}/comentarios/EliminarComentario/${id}`
+    );
+  }
+
+  // ========== MANUALES ==========
   getManuales(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/manual/ListaManuales`);
   }
@@ -131,7 +209,18 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/manual/AgregarManual`, manual);
   }
 
-  // Movimientos
+  updateManual(id: number, manual: any): Observable<any> {
+    return this.http.put<any>(
+      `${this.baseUrl}/manual/ModificarManual/${id}`,
+      manual
+    );
+  }
+
+  deleteManual(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/manual/EliminarManual/${id}`);
+  }
+
+  // ========== MOVIMIENTOS ==========
   getMovimientos(): Observable<any[]> {
     return this.http.get<any[]>(
       `${this.baseUrl}/movimientospieza/ListaMovimientosPieza`
@@ -145,7 +234,7 @@ export class ApiService {
     );
   }
 
-  // Componentes Producto
+  // ========== COMPONENTES PRODUCTO ==========
   getComponentesProducto(): Observable<any[]> {
     return this.http.get<any[]>(
       `${this.baseUrl}/componentesproducto/ListaComponentesProductos`
@@ -159,7 +248,20 @@ export class ApiService {
     );
   }
 
-  // Compras Cliente
+  updateComponenteProducto(id: number, componente: any): Observable<any> {
+    return this.http.put<any>(
+      `${this.baseUrl}/componentesproducto/ModificarComponentesProducto/${id}`,
+      componente
+    );
+  }
+
+  deleteComponenteProducto(id: number): Observable<any> {
+    return this.http.delete<any>(
+      `${this.baseUrl}/componentesproducto/EliminarComponentesProducto/${id}`
+    );
+  }
+
+  // ========== COMPRAS CLIENTE ==========
   getComprasCliente(): Observable<any[]> {
     return this.http.get<any[]>(
       `${this.baseUrl}/comprascliente/ListaComprasCliente`
@@ -179,18 +281,26 @@ export class ApiService {
     );
   }
 
-  // Usuarios
+  // ========== USUARIOS ==========
   getUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/account`);
   }
 
-  // Roles
+  getUserDetail(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/account/detail`);
+  }
+
+  // ========== ROLES ==========
   getRoles(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/roles`);
   }
 
   createRole(roleName: string): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/roles`, { roleName });
+  }
+
+  deleteRole(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/roles/${id}`);
   }
 
   assignRole(userId: string, roleId: string): Observable<any> {

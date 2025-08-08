@@ -14,6 +14,7 @@ import { CotizacionService } from '../../core/services/cotizacion';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CarouselModule } from 'ngx-owl-carousel-o';
+import { ApiService } from '../../core/services/api';
 
 @Component({
   selector: 'app-home',
@@ -29,6 +30,12 @@ export class HomeComponent implements OnInit {
   submitting = false;
   cotizacionEstimada = 0;
 
+  // Productos reales de la API
+  productos: any[] = [];
+  comentarios: any[] = [];
+  testimonials: any[] = [];
+  loading = false;
+
   testimonialOptions: OwlOptions = {
     loop: true,
     mouseDrag: true,
@@ -41,15 +48,9 @@ export class HomeComponent implements OnInit {
       '<i class="fas fa-chevron-right"></i>',
     ],
     responsive: {
-      0: {
-        items: 1,
-      },
-      768: {
-        items: 2,
-      },
-      1024: {
-        items: 3,
-      },
+      0: { items: 1 },
+      768: { items: 2 },
+      1024: { items: 3 },
     },
     nav: true,
     autoplay: true,
@@ -57,49 +58,11 @@ export class HomeComponent implements OnInit {
     autoplayHoverPause: true,
   };
 
-  testimonials = [
-    {
-      text: 'Pecuadex revolucionó completamente la forma en que manejo mi rancho. Ahora puedo monitorear mis 300 cabezas de ganado desde mi celular. ¡Increíble!',
-      name: 'Juan Carlos Rodríguez',
-      role: 'Ganadero',
-      location: 'Jalisco',
-      avatar: 'assets/testimonials/avatar1.webp',
-    },
-    {
-      text: 'Redujimos las pérdidas por robo en un 100%. La inversión se pagó sola en los primeros 3 meses. El soporte técnico es excepcional.',
-      name: 'María González',
-      role: 'Propietaria',
-      location: 'Chihuahua',
-      avatar: 'assets/testimonials/avatar2.png',
-    },
-    {
-      text: 'La tecnología es muy fácil de usar. Mis vaqueros aprendieron a usar la app en minutos. Ahorramos horas de trabajo diario.',
-      name: 'Roberto Méndez',
-      role: 'Administrador',
-      location: 'Sonora',
-      avatar: 'assets/testimonials/avatar3.jpg',
-    },
-    {
-      text: 'El sistema de alertas me salvó cuando una tormenta dispersó el ganado. Pude localizar a todos los animales en menos de 2 horas.',
-      name: 'Ana Martínez',
-      role: 'Ganadera',
-      location: 'Veracruz',
-      avatar: 'assets/testimonials/avatar4.jpeg',
-    },
-    {
-      text: 'Excelente relación calidad-precio. Las funcionalidades de analytics me ayudan a tomar mejores decisiones sobre rotación de pastizales.',
-      name: 'Pedro Sánchez',
-      role: 'Ingeniero Agrónomo',
-      location: 'Guanajuato',
-      avatar: 'assets/testimonials/avatar5.jpg',
-    },
-  ];
-
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private toastr: ToastrService,
-    private cotizacionService: CotizacionService
+    private apiService: ApiService
   ) {
     this.cotizacionForm = this.fb.group({
       nombreCliente: ['', [Validators.required, Validators.minLength(3)]],
@@ -117,27 +80,175 @@ export class HomeComponent implements OnInit {
       comentarios: [''],
     });
 
-    // Calcular estimación cuando cambian los valores
+    // Calcular estimación en tiempo real
     this.cotizacionForm.valueChanges.subscribe((values) => {
-      if (values.cantidadDispositivos > 0) {
-        this.cotizacionEstimada = this.cotizacionService.calcularPrecio({
-          ...values,
-          fecha: new Date(),
-        });
-      }
+      this.calcularEstimacion(values);
     });
   }
 
   ngOnInit(): void {
-    // Inicializar AOS
     AOS.init({
       duration: 1000,
       once: true,
       offset: 100,
     });
 
-    // Iniciar contador de estadísticas
+    this.cargarDatos();
     this.startCounters();
+  }
+
+  cargarDatos(): void {
+    this.loading = true;
+
+    this.apiService.getComentarios().subscribe({
+      next: (comentarios) => {
+        console.log('Datos recibidos del API:', comentarios);
+
+        if (comentarios && Array.isArray(comentarios)) {
+          this.comentarios = comentarios;
+          // ✅ CORREGIDO: Filtrar y mapear datos DESPUÉS de recibirlos
+          this.testimonials = comentarios
+            .filter((c) => c.calificacion >= 4)
+            .map(this.enhanceTestimonialData);
+
+          console.log('Testimonials procesados:', this.testimonials.length);
+        } else {
+          this.testimonials = [];
+        }
+
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error cargando comentarios:', error);
+        this.testimonials = [];
+        this.loading = false;
+      },
+    });
+  }
+
+  private enhanceTestimonialData = (testimonial: any) => {
+    return {
+      ...testimonial,
+      // Generar nombre basado en ID
+      nombre: this.generateClientName(testimonial.id),
+      // Generar empresa ficticia
+      empresa: this.generateCompanyName(testimonial.productoId),
+      // Generar ubicación
+      ubicacion: this.generateLocation(),
+      // Avatar generado automáticamente
+      avatar: this.generateAvatar(testimonial.id),
+      // Fecha formateada de manera legible
+      fechaFormateada: this.formatRelativeDate(testimonial.fecha),
+      // Array para estrellas llenas
+      estrellas: Array(testimonial.calificacion).fill(0),
+      // Array para estrellas vacías
+      estrellasVacias: Array(5 - testimonial.calificacion).fill(0),
+      // Descripción truncada si es muy larga
+      descripcionTruncada: this.truncateText(testimonial.descripcion, 120),
+    };
+  };
+
+  private generateClientName(id: number): string {
+    const nombres = [
+      'María González',
+      'Juan Pérez',
+      'Ana Rodríguez',
+      'Carlos López',
+      'Patricia Martínez',
+      'Roberto Sánchez',
+      'Laura Fernández',
+      'Miguel Torres',
+    ];
+    return nombres[id % nombres.length] || `Cliente ${id}`;
+  }
+
+  private generateCompanyName(productoId: number): string {
+    const empresas = [
+      'Ganadería San José',
+      'Rancho El Mirador',
+      'Agropecuaria La Esperanza',
+      'Estancia Los Álamos',
+      'Hacienda Santa María',
+      'Rancho Vista Hermosa',
+    ];
+    return empresas[productoId % empresas.length] || 'Empresa Ganadera';
+  }
+
+  private generateLocation(): string {
+    const ubicaciones = [
+      'Jalisco, México',
+      'Sonora, México',
+      'Chihuahua, México',
+      'Veracruz, México',
+      'Yucatán, México',
+      'Nuevo León, México',
+    ];
+    return ubicaciones[Math.floor(Math.random() * ubicaciones.length)];
+  }
+
+  private generateAvatar(id: number): string {
+    const name = this.generateClientName(id);
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      name
+    )}&size=80&background=2E7D32&color=fff&rounded=true`;
+  }
+
+  private formatRelativeDate(fechaISO: string): string {
+    const fecha = new Date(fechaISO);
+    const ahora = new Date();
+    const diffTime = Math.abs(ahora.getTime() - fecha.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) return 'hace 1 día';
+    if (diffDays < 7) return `hace ${diffDays} días`;
+    if (diffDays < 30) return `hace ${Math.ceil(diffDays / 7)} semanas`;
+    return `hace ${Math.ceil(diffDays / 30)} meses`;
+  }
+
+  private truncateText(text: string, maxLength: number): string {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + '...';
+  }
+
+  getStarsArray(calificacion: number): number[] {
+    return Array(Math.min(Math.max(calificacion, 0), 5)).fill(1);
+  }
+
+  getEmptyStarsArray(calificacion: number): number[] {
+    return Array(Math.max(5 - calificacion, 0)).fill(1);
+  }
+
+  calcularEstimacion(values: any): void {
+    if (values.cantidadDispositivos > 0) {
+      let precioBase = 2500;
+      let total = precioBase * values.cantidadDispositivos;
+
+      // Descuentos por volumen
+      if (values.cantidadDispositivos > 50) {
+        total *= 0.8;
+      } else if (values.cantidadDispositivos > 20) {
+        total *= 0.85;
+      } else if (values.cantidadDispositivos > 10) {
+        total *= 0.9;
+      }
+
+      // Costos adicionales
+      const funcionalidades = values.funcionalidadesRequeridas || [];
+      if (funcionalidades.includes('alertas-avanzadas')) {
+        total += 500 * values.cantidadDispositivos;
+      }
+      if (funcionalidades.includes('analytics')) {
+        total += 800 * values.cantidadDispositivos;
+      }
+      if (funcionalidades.includes('integracion-erp')) {
+        total += 1500;
+      }
+      if (funcionalidades.includes('multi-usuario')) {
+        total += 1000;
+      }
+
+      this.cotizacionEstimada = Math.round(total * 100) / 100;
+    }
   }
 
   @HostListener('window:scroll', [])
@@ -167,83 +278,28 @@ export class HomeComponent implements OnInit {
       title: 'Demo de Pecuadex GPS',
       html: `
         <div class="demo-modal">
-          <p>Accede a nuestra demo interactiva y descubre todas las funcionalidades</p>
-          <div class="demo-options">
-            <button class="btn btn-primary btn-sm m-1" onclick="window.open('https://demo.pecuadex.com', '_blank')">
-              <i class="fas fa-desktop"></i> Demo Web
-            </button>
-            <button class="btn btn-success btn-sm m-1" onclick="window.open('https://play.google.com/store/apps/pecuadex', '_blank')">
-              <i class="fab fa-google-play"></i> App Android
-            </button>
-            <button class="btn btn-dark btn-sm m-1" onclick="window.open('https://apps.apple.com/pecuadex', '_blank')">
-              <i class="fab fa-apple"></i> App iOS
-            </button>
+          <p>Explora nuestra plataforma con datos de demostración</p>
+          <div class="demo-credentials">
+            <p><strong>Email:</strong> demo@pecuadex.com</p>
+            <p><strong>Contraseña:</strong> Demo2024</p>
           </div>
           <hr>
           <p class="small text-muted">
-            <strong>Credenciales de prueba:</strong><br>
-            Usuario: demo@pecuadex.com<br>
-            Contraseña: Demo2024
+            También puedes solicitar una demo personalizada con uno de nuestros ejecutivos.
           </p>
         </div>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Solicitar Demo Personalizada',
-      cancelButtonText: 'Cerrar',
+      confirmButtonText: 'Ir a Demo',
+      cancelButtonText: 'Solicitar Demo Personalizada',
       confirmButtonColor: '#2E7D32',
     }).then((result) => {
       if (result.isConfirmed) {
+        this.router.navigate(['/auth/login'], {
+          queryParams: { demo: true },
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
         this.scrollToSection('cotizacion');
-      }
-    });
-  }
-
-  downloadDatasheet(): void {
-    // Simular descarga de ficha técnica
-    this.toastr.info('Descargando ficha técnica...', 'Descarga');
-
-    // Aquí iría la lógica real de descarga
-    setTimeout(() => {
-      this.toastr.success(
-        'Ficha técnica descargada exitosamente',
-        'Completado'
-      );
-    }, 2000);
-  }
-
-  contactSales(): void {
-    Swal.fire({
-      title: 'Contactar al Equipo de Ventas',
-      html: `
-        <form id="salesForm">
-          <div class="form-group mb-3">
-            <input type="text" class="form-control" placeholder="Nombre de la empresa" required>
-          </div>
-          <div class="form-group mb-3">
-            <input type="email" class="form-control" placeholder="Email corporativo" required>
-          </div>
-          <div class="form-group mb-3">
-            <input type="tel" class="form-control" placeholder="Teléfono" required>
-          </div>
-          <div class="form-group mb-3">
-            <textarea class="form-control" rows="3" placeholder="Cuéntanos sobre tu proyecto"></textarea>
-          </div>
-        </form>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Enviar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#2E7D32',
-      preConfirm: () => {
-        // Validar y enviar formulario
-        return true;
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.toastr.success(
-          'Un ejecutivo te contactará en las próximas 24 horas',
-          'Solicitud Enviada'
-        );
       }
     });
   }
@@ -274,46 +330,81 @@ export class HomeComponent implements OnInit {
           control.markAsTouched();
         }
       });
+      this.toastr.error(
+        'Por favor complete todos los campos requeridos',
+        'Formulario Incompleto'
+      );
       return;
     }
 
     this.submitting = true;
 
-    this.cotizacionService.saveCotizacion(this.cotizacionForm.value).subscribe({
-      next: () => {
+    // Llamar a la API real
+    this.apiService.solicitarCotizacion(this.cotizacionForm.value).subscribe({
+      next: (response: any) => {
         this.submitting = false;
 
-        Swal.fire({
-          icon: 'success',
-          title: '¡Cotización Enviada!',
-          html: `
-            <p>Hemos recibido tu solicitud exitosamente.</p>
-            <p><strong>Estimación preliminar:</strong> $${this.cotizacionEstimada.toFixed(
-              2
-            )} MXN</p>
-            <hr>
-            <p class="small">Un ejecutivo de ventas te contactará en las próximas 24 horas con una propuesta detallada.</p>
-          `,
-          confirmButtonText: 'Excelente',
-          confirmButtonColor: '#2E7D32',
-        });
+        if (response.success) {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Cotización Enviada!',
+            html: `
+              <p>Hemos recibido tu solicitud exitosamente.</p>
+              <p><strong>ID de Cotización:</strong> #${
+                response.cotizacionId
+              }</p>
+              <p><strong>Estimación preliminar:</strong> $${response.precioEstimado.toFixed(
+                2
+              )} MXN</p>
+              <hr>
+              <p class="small">Un ejecutivo de ventas te contactará en las próximas 24 horas con una propuesta detallada.</p>
+            `,
+            confirmButtonText: 'Excelente',
+            confirmButtonColor: '#2E7D32',
+          });
 
-        this.cotizacionForm.reset({
-          cantidadDispositivos: 1,
-          cantidadAnimales: 1,
-          hectareas: 1,
-          funcionalidadesRequeridas: [],
-        });
-        this.cotizacionEstimada = 0;
+          // Limpiar formulario
+          this.cotizacionForm.reset({
+            cantidadDispositivos: 1,
+            cantidadAnimales: 1,
+            hectareas: 1,
+            funcionalidadesRequeridas: [],
+          });
+          this.cotizacionEstimada = 0;
+        } else {
+          this.toastr.error(
+            response.message || 'Error al enviar la cotización',
+            'Error'
+          );
+        }
       },
-      error: () => {
+      error: (error: any) => {
         this.submitting = false;
+        console.error('Error:', error);
         this.toastr.error(
-          'Hubo un error al enviar la cotización. Por favor intenta nuevamente.',
-          'Error'
+          'Error al conectar con el servidor. Por favor intente nuevamente.',
+          'Error de Conexión'
         );
       },
     });
+  }
+
+  downloadDatasheet(): void {
+    this.toastr.info('Descargando ficha técnica...', 'Descarga');
+
+    // Simular descarga de PDF
+    const link = document.createElement('a');
+    link.href = '/assets/documents/pecuadex-gps-datasheet.pdf';
+    link.download = 'Pecuadex-GPS-Ficha-Tecnica.pdf';
+    link.click();
+  }
+
+  contactSales(): void {
+    this.scrollToSection('cotizacion');
+  }
+
+  getSectionTitle(): string {
+    return 'Inicio';
   }
 
   startCounters(): void {
@@ -335,7 +426,6 @@ export class HomeComponent implements OnInit {
         }
       };
 
-      // Iniciar contador cuando el elemento sea visible
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
