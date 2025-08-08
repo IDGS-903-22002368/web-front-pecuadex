@@ -1,186 +1,88 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-register',
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './register.html',
-  styleUrls: ['./register.scss'],
+  styleUrls: ['./register.scss', '../auth.component.scss'],
 })
 export class RegisterComponent implements OnInit {
-  registerForm: FormGroup;
+  registerForm!: FormGroup;
   loading = false;
   showPassword = false;
-  showConfirmPassword = false;
-  currentStep = 1;
-  totalSteps = 2;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
     private toastr: ToastrService
-  ) {
-    this.registerForm = this.fb.group(
-      {
-        // Step 1: Información personal
-        fullName: ['', [Validators.required, Validators.minLength(3)]],
-        email: ['', [Validators.required, Validators.email]],
-        password: [
-          '',
-          [
-            Validators.required,
-            Validators.minLength(6),
-            this.passwordValidator,
-          ],
-        ],
-        confirmPassword: ['', Validators.required],
-
-        // Step 2: Información adicional
-        phoneNumber: ['', [Validators.pattern(/^[\d\s\+\-\(\)]+$/)]],
-        companyName: [''],
-        ranchSize: [''],
-        animalCount: [''],
-        acceptTerms: [false, Validators.requiredTrue],
-        subscribeNewsletter: [false],
-      },
-      { validators: this.passwordMatchValidator }
-    );
-  }
+  ) {}
 
   ngOnInit(): void {
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/']);
-    }
+    this.registerForm = this.fb.group({
+      fullName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+    });
   }
 
-  passwordValidator(control: any): any {
-    const value = control.value;
-    if (!value) return null;
-
-    const hasNumber = /[0-9]/.test(value);
-    const hasUpper = /[A-Z]/.test(value);
-    const hasLower = /[a-z]/.test(value);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-
-    const valid = hasNumber && hasUpper && hasLower && hasSpecial;
-
-    if (!valid) {
-      return { weakPassword: true };
-    }
-    return null;
-  }
-
-  passwordMatchValidator(form: any): any {
-    const password = form.get('password');
-    const confirmPassword = form.get('confirmPassword');
-
-    if (
-      password &&
-      confirmPassword &&
-      password.value !== confirmPassword.value
-    ) {
-      confirmPassword.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
-    }
-    return null;
-  }
-
-  togglePassword(field: string): void {
-    if (field === 'password') {
-      this.showPassword = !this.showPassword;
-    } else {
-      this.showConfirmPassword = !this.showConfirmPassword;
-    }
-  }
-
-  nextStep(): void {
-    if (this.currentStep === 1) {
-      const step1Fields = ['fullName', 'email', 'password', 'confirmPassword'];
-      let valid = true;
-
-      step1Fields.forEach((field) => {
-        const control = this.registerForm.get(field);
-        if (control && control.invalid) {
-          control.markAsTouched();
-          valid = false;
-        }
-      });
-
-      if (valid) {
-        this.currentStep = 2;
-      }
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
   }
 
   onSubmit(): void {
     if (this.registerForm.invalid) {
-      Object.keys(this.registerForm.controls).forEach((key) => {
-        const control = this.registerForm.get(key);
-        if (control && control.invalid) {
-          control.markAsTouched();
-        }
-      });
+      Object.values(this.registerForm.controls).forEach((control) =>
+        control.markAsTouched()
+      );
+      this.toastr.warning('Por favor completa el formulario correctamente');
       return;
     }
 
-    this.loading = true;
-
+    const { email, fullName, password } = this.registerForm.value;
     const registerData = {
-      fullName: this.registerForm.value.fullName,
-      email: this.registerForm.value.email,
-      password: this.registerForm.value.password,
-      roles: ['User'], // Por defecto, todos son usuarios/clientes
+      email,
+      fullName,
+      password,
+      roles: ['Client'], // o 'Client', según corresponda
     };
 
+    this.loading = true;
+
     this.authService.register(registerData).subscribe({
-      next: (response) => {
-        if (response.isSuccess) {
+      next: (res) => {
+        this.loading = false;
+        if (res.isSuccess) {
           this.toastr.success(
-            'Cuenta creada exitosamente. Por favor inicia sesión.',
-            '¡Registro exitoso!'
+            'Registro exitoso. Ahora puedes iniciar sesión.',
+            '¡Bienvenido!'
           );
-
-          // Guardar información adicional en localStorage para completar el perfil después
-          const additionalInfo = {
-            phoneNumber: this.registerForm.value.phoneNumber,
-            companyName: this.registerForm.value.companyName,
-            ranchSize: this.registerForm.value.ranchSize,
-            animalCount: this.registerForm.value.animalCount,
-            subscribeNewsletter: this.registerForm.value.subscribeNewsletter,
-          };
-          localStorage.setItem(
-            'pendingProfile',
-            JSON.stringify(additionalInfo)
-          );
-
           this.router.navigate(['/auth/login']);
         } else {
-          this.toastr.error(
-            response.message || 'Error al crear la cuenta',
-            'Error'
-          );
+          this.toastr.error(res.message || 'Ocurrió un error al registrar');
         }
-        this.loading = false;
       },
       error: (error) => {
         this.loading = false;
-        if (error.error && error.error.length > 0) {
-          const errorMessage =
-            error.error[0].description || 'Error al registrar usuario';
-          this.toastr.error(errorMessage, 'Error');
-        } else {
-          this.toastr.error('Error al conectar con el servidor', 'Error');
-        }
+        console.error('Error en el registro:', error);
+        this.toastr.error('No se pudo completar el registro');
       },
     });
+  }
+
+  hasError(field: string, error: string): boolean {
+    const control = this.registerForm.get(field);
+    return !!(control && control.hasError(error) && control.touched);
   }
 }

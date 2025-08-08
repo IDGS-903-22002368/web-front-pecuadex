@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import {
   HttpRequest,
   HttpHandler,
@@ -8,8 +8,8 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, take, switchMap } from 'rxjs/operators';
-import { AuthService } from '../services/auth';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
@@ -17,13 +17,19 @@ export class TokenInterceptor implements HttpInterceptor {
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
     null
   );
+  private authService!: AuthService;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private injector: Injector, private router: Router) {}
 
   intercept(
     request: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
+    // Inyección perezosa
+    if (!this.authService) {
+      this.authService = this.injector.get(AuthService);
+    }
+
     const token = this.authService.getToken();
 
     if (token) {
@@ -53,6 +59,10 @@ export class TokenInterceptor implements HttpInterceptor {
     request: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
+    if (!this.authService) {
+      this.authService = this.injector.get(AuthService);
+    }
+
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);

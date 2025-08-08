@@ -2,7 +2,7 @@
   <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
     <div class="sidebar-header">
       <img src="assets/logo-pecuadex.svg" alt="Pecuadex" class="logo" />
-      <button class="toggle-btn" (click)="toggleSidebar()">
+      <button class="btn-outline-custom" (click)="toggleSidebar()">
         <i class="fas fa-bars"></i>
       </button>
     </div>
@@ -74,14 +74,14 @@
           <span class="role">Administrador</span>
         </div>
       </div>
-      <button class="logout-btn" (click)="logout()">
+      <button class="btn-outline-custom" (click)="logout()">
         <i class="fas fa-sign-out-alt"></i>
       </button>
     </div>
   </aside>
 
   <main class="main-content">
-    <header class="admin-header">
+    <header class="admin-header navbar-scrolled">
       <div class="header-left">
         <h1>{{ getSectionTitle() }}</h1>
         <nav class="breadcrumb">
@@ -92,131 +92,40 @@
       </div>
 
       <div class="header-right">
-        <button class="notification-btn">
+        <button class="btn-outline-custom">
           <i class="fas fa-bell"></i>
           <span class="badge">3</span>
         </button>
 
-        <button class="settings-btn">
+        <button class="btn-outline-custom">
           <i class="fas fa-cog"></i>
         </button>
       </div>
     </header>
 
-    <section *ngIf="activeSection === 'dashboard'" class="dashboard-section">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon bg-primary">
-            <i class="fas fa-dollar-sign"></i>
-          </div>
-          <div class="stat-content">
-            <h3>${{ stats.totalVentas | number:'1.2-2' }}</h3>
-            <p>Ventas Totales</p>
-            <span class="trend up">
-              <i class="fas fa-arrow-up"></i> 12.5%
-            </span>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon bg-success">
-            <i class="fas fa-users"></i>
-          </div>
-          <div class="stat-content">
-            <h3>{{ stats.clientesActivos }}</h3>
-            <p>Clientes Activos</p>
-            <span class="trend up"> <i class="fas fa-arrow-up"></i> 8.3% </span>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon bg-warning">
-            <i class="fas fa-satellite-dish"></i>
-          </div>
-          <div class="stat-content">
-            <h3>{{ stats.dispositivosActivos }}</h3>
-            <p>Dispositivos Activos</p>
-            <span class="trend up">
-              <i class="fas fa-arrow-up"></i> 15.7%
-            </span>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon bg-info">
-            <i class="fas fa-box"></i>
-          </div>
-          <div class="stat-content">
-            <h3>{{ stats.productosStock }}</h3>
-            <p>Productos en Stock</p>
-            <span class="trend down">
-              <i class="fas fa-arrow-down"></i> 3.2%
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="charts-row">
-        <div class="chart-card">
-          <div class="chart-header">
-            <h3>Ventas Mensuales</h3>
-            <select class="form-select form-select-sm">
-              <option>Últimos 6 meses</option>
-              <option>Último año</option>
-              <option>Todo</option>
-            </select>
-          </div>
-          <canvas id="salesChart"></canvas>
-        </div>
-
-        <div class="chart-card">
-          <div class="chart-header">
-            <h3>Distribución de Productos</h3>
-          </div>
-          <canvas id="productsChart"></canvas>
-        </div>
-      </div>
-
-      <div class="activity-card">
-        <div class="card-header">
-          <h3>Actividad Reciente</h3>
-          <button class="btn btn-sm btn-outline-primary">Ver Todo</button>
-        </div>
-        <div class="activity-list">
-          <div class="activity-item" *ngFor="let activity of recentActivities">
-            <div class="activity-icon" [ngClass]="'bg-' + activity.type">
-              <i [class]="activity.icon"></i>
-            </div>
-            <div class="activity-content">
-              <p>{{ activity.description }}</p>
-              <small>{{ activity.time }}</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <section *ngIf="activeSection === 'productos'" class="products-section">
       <div class="section-header">
         <h2>Gestión de Productos</h2>
-        <button class="btn btn-primary" (click)="openProductModal()">
+        <button class="btn-primary-custom" (click)="openProductModal()">
           <i class="fas fa-plus"></i> Nuevo Producto
         </button>
       </div>
 
-      <div class="table-card">
+      <div class="table-card card-custom">
         <div class="table-header">
-          <input
-            type="text"
-            class="form-control search-input"
-            placeholder="Buscar productos..."
-            [(ngModel)]="searchTerm"
-          />
+          <div class="form-modern w-100">
+            <input
+              type="text"
+              class="form-control search-input"
+              placeholder="Buscar productos..."
+              [(ngModel)]="searchTerm"
+            />
+          </div>
           <div class="table-actions">
-            <button class="btn btn-sm btn-outline-secondary">
+            <button class="btn-outline-custom btn-sm">
               <i class="fas fa-filter"></i> Filtros
             </button>
-            <button class="btn btn-sm btn-outline-secondary">
+            <button class="btn-outline-custom btn-sm">
               <i class="fas fa-download"></i> Exportar
             </button>
           </div>
@@ -258,13 +167,13 @@
               </td>
               <td>
                 <div class="action-buttons">
-                  <button class="btn btn-sm btn-info" title="Ver">
+                  <button class="btn-outline-custom btn-sm" title="Ver">
                     <i class="fas fa-eye"></i>
                   </button>
-                  <button class="btn btn-sm btn-warning" title="Editar">
+                  <button class="btn-outline-custom btn-sm" title="Editar">
                     <i class="fas fa-edit"></i>
                   </button>
-                  <button class="btn btn-sm btn-danger" title="Eliminar">
+                  <button class="btn-outline-custom btn-sm" title="Eliminar">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
@@ -299,117 +208,17 @@
         </div>
       </div>
     </section>
-
-    <section *ngIf="activeSection === 'ventas'" class="sales-section">
-      <div class="section-header">
-        <h2>Gestión de Ventas</h2>
-        <button class="btn btn-primary">
-          <i class="fas fa-plus"></i> Nueva Venta
-        </button>
-      </div>
-
-      <div class="sales-summary">
-        <div class="summary-card">
-          <h4>Ventas del Mes</h4>
-          <p class="amount">${{ stats.ventasMes | number:'1.2-2' }}</p>
-          <small class="text-success">+15% vs mes anterior</small>
-        </div>
-        <div class="summary-card">
-          <h4>Órdenes Pendientes</h4>
-          <p class="amount">12</p>
-          <small class="text-warning">Requieren atención</small>
-        </div>
-        <div class="summary-card">
-          <h4>Clientes Nuevos</h4>
-          <p class="amount">8</p>
-          <small class="text-info">Este mes</small>
-        </div>
-      </div>
-
-      <div class="table-card">
-        <table class="table table-modern">
-          <thead>
-            <tr>
-              <th>ID Venta</th>
-              <th>Cliente</th>
-              <th>Fecha</th>
-              <th>Productos</th>
-              <th>Total</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let venta of ventas">
-              <td>#{{ venta.id }}</td>
-              <td>{{ venta.cliente }}</td>
-              <td>{{ venta.fecha | date:'short' }}</td>
-              <td>{{ venta.items }} items</td>
-              <td>${{ venta.total | number:'1.2-2' }}</td>
-              <td>
-                <span class="badge" [ngClass]="getStatusClass(venta.estado)">
-                  {{ venta.estado }}
-                </span>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <button class="btn btn-sm btn-info" title="Ver Detalles">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm btn-success"
-                    title="Generar Factura"
-                  >
-                    <i class="fas fa-file-invoice"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section *ngIf="activeSection === 'usuarios'" class="users-section">
-      <div class="section-header">
-        <h2>Gestión de Usuarios</h2>
-        <button class="btn btn-primary">
-          <i class="fas fa-user-plus"></i> Nuevo Usuario
-        </button>
-      </div>
-
-      <div class="users-filters">
-        <div class="filter-group">
-          <label>Rol:</label>
-          <select class="form-select">
-            <option>Todos</option>
-            <option>Administradores</option>
-            <option>Clientes</option>
-            <option>Empleados</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Estado:</label>
-          <select class="form-select">
-            <option>Todos</option>
-            <option>Activos</option>
-            <option>Inactivos</option>
-            <option>Suspendidos</option>
-          </select>
-        </div>
-      </div>
-    </section>
   </main>
 </div>
 
 <div class="modal" *ngIf="showProductModal">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content card-custom">
       <div class="modal-header">
         <h5 class="modal-title">Nuevo Producto</h5>
         <button class="btn-close" (click)="closeProductModal()"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body form-modern">
         <form [formGroup]="productForm">
           <div class="mb-3">
             <label class="form-label">Nombre del Producto</label>
@@ -452,10 +261,10 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeProductModal()">
+        <button class="btn-outline-custom" (click)="closeProductModal()">
           Cancelar
         </button>
-        <button class="btn btn-primary" (click)="saveProduct()">
+        <button class="btn-primary-custom" (click)="saveProduct()">
           Guardar Producto
         </button>
       </div>

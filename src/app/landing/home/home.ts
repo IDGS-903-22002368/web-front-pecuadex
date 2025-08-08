@@ -15,10 +15,18 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CarouselModule } from 'ngx-owl-carousel-o';
 import { ApiService } from '../../core/services/api';
+import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-home',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, CarouselModule],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    CarouselModule,
+    RouterModule,
+  ],
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
 })
@@ -271,37 +279,6 @@ export class HomeComponent implements OnInit {
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  openDemoModal(): void {
-    Swal.fire({
-      title: 'Demo de Pecuadex GPS',
-      html: `
-        <div class="demo-modal">
-          <p>Explora nuestra plataforma con datos de demostración</p>
-          <div class="demo-credentials">
-            <p><strong>Email:</strong> demo@pecuadex.com</p>
-            <p><strong>Contraseña:</strong> Demo2024</p>
-          </div>
-          <hr>
-          <p class="small text-muted">
-            También puedes solicitar una demo personalizada con uno de nuestros ejecutivos.
-          </p>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Ir a Demo',
-      cancelButtonText: 'Solicitar Demo Personalizada',
-      confirmButtonColor: '#2E7D32',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.router.navigate(['/auth/login'], {
-          queryParams: { demo: true },
-        });
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        this.scrollToSection('cotizacion');
-      }
-    });
   }
 
   onFuncionalidadChange(event: any): void {

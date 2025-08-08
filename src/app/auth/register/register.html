@@ -1,1 +1,117 @@
-<p>register works!</p>
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <img src="assets/logo-pecuadex.webp" alt="Pecuadex" class="logo" />
+      <h2>Crea tu cuenta</h2>
+      <p>Regístrate para comenzar a usar Pecuadex</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="fullName"
+          ><i class="fas fa-user"></i> Nombre completo</label
+        >
+        <input
+          type="text"
+          id="fullName"
+          class="form-control"
+          formControlName="fullName"
+          placeholder="Tu nombre completo"
+          [class.is-invalid]="hasError('fullName', 'required')"
+        />
+        <div class="invalid-feedback" *ngIf="hasError('fullName', 'required')">
+          El nombre completo es requerido
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email"><i class="fas fa-envelope"></i> Email</label>
+        <input
+          type="email"
+          id="email"
+          class="form-control"
+          formControlName="email"
+          placeholder="tu@email.com"
+          [class.is-invalid]="hasError('email', 'required') || hasError('email', 'email')"
+        />
+        <div class="invalid-feedback" *ngIf="hasError('email', 'required')">
+          El email es requerido
+        </div>
+        <div class="invalid-feedback" *ngIf="hasError('email', 'email')">
+          Ingresa un email válido
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
+        <div class="password-input">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            class="form-control"
+            formControlName="password"
+            placeholder="••••••••"
+            [class.is-invalid]="hasError('password', 'required') || hasError('password', 'minlength')"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePassword()"
+          >
+            <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+        <div class="invalid-feedback" *ngIf="hasError('password', 'required')">
+          La contraseña es requerida
+        </div>
+        <div class="invalid-feedback" *ngIf="hasError('password', 'minlength')">
+          Mínimo 6 caracteres
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary btn-block"
+        [disabled]="loading || registerForm.invalid"
+      >
+        <span *ngIf="!loading">
+          <i class="fas fa-user-plus"></i> Registrarse
+        </span>
+        <span *ngIf="loading">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Creando cuenta...
+        </span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>
+        ¿Ya tienes una cuenta?
+        <a routerLink="/auth/login">Inicia sesión aquí</a>
+      </p>
+      <a routerLink="/" class="back-link">
+        <i class="fas fa-arrow-left"></i> Volver al inicio
+      </a>
+    </div>
+  </div>
+
+  <div class="auth-image">
+    <img src="assets/auth-bg.jpeg" alt="Pecuadex" />
+    <div class="overlay">
+      <h3>Tecnología GPS para Ganadería Moderna</h3>
+      <p>Monitorea y gestiona tu ganado desde cualquier lugar</p>
+      <div class="features">
+        <div class="feature">
+          <i class="fas fa-check-circle"></i>
+          <span>Localización en tiempo real</span>
+        </div>
+        <div class="feature">
+          <i class="fas fa-check-circle"></i> <span>Alertas inteligentes</span>
+        </div>
+        <div class="feature">
+          <i class="fas fa-check-circle"></i> <span>Analytics avanzado</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

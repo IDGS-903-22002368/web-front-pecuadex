@@ -1,9 +1,39 @@
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">
-      <img src="assets/logo-pecuadex.svg" alt="Pecuadex" class="logo" />
+      <img src="assets/logo-pecuadex.webp" alt="Pecuadex" class="logo" />
       <h2>Bienvenido de vuelta</h2>
       <p>Ingresa a tu cuenta de Pecuadex</p>
+    </div>
+
+    <!-- Botones de Debug (solo en desarrollo) -->
+    <div class="debug-buttons mb-3" *ngIf="debugMode">
+      <div class="alert alert-info small">
+        <strong>Modo Debug Activado</strong>
+        <div class="btn-group btn-group-sm mt-2 d-flex">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            (click)="fillTestCredentials('admin')"
+          >
+            Admin
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-success"
+            (click)="fillTestCredentials('client')"
+          >
+            Cliente
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-warning"
+            (click)="showDebugInfo()"
+          >
+            Info Debug
+          </button>
+        </div>
+      </div>
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
@@ -21,12 +51,12 @@
           class="invalid-feedback"
           *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
         >
-          <span *ngIf="loginForm.get('email')?.errors?.['required']"
-            >El email es requerido</span
-          >
-          <span *ngIf="loginForm.get('email')?.errors?.['email']"
-            >Ingresa un email válido</span
-          >
+          <span *ngIf="loginForm.get('email')?.errors?.['required']">
+            El email es requerido
+          </span>
+          <span *ngIf="loginForm.get('email')?.errors?.['email']">
+            Ingresa un email válido
+          </span>
         </div>
       </div>
 
@@ -53,12 +83,12 @@
           class="invalid-feedback"
           *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
         >
-          <span *ngIf="loginForm.get('password')?.errors?.['required']"
-            >La contraseña es requerida</span
-          >
-          <span *ngIf="loginForm.get('password')?.errors?.['minlength']"
-            >Mínimo 6 caracteres</span
-          >
+          <span *ngIf="loginForm.get('password')?.errors?.['required']">
+            La contraseña es requerida
+          </span>
+          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">
+            Mínimo 6 caracteres
+          </span>
         </div>
       </div>
 
@@ -80,7 +110,7 @@
       <button
         type="submit"
         class="btn btn-primary btn-block"
-        [disabled]="loading"
+        [disabled]="loading || loginForm.invalid"
       >
         <span *ngIf="!loading">
           <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
@@ -90,10 +120,30 @@
           Iniciando sesión...
         </span>
       </button>
+
+      <!-- Mostrar estado del formulario en debug -->
+      <div class="mt-3 small text-muted" *ngIf="debugMode">
+        <p class="mb-1">
+          Estado del formulario: {{ loginForm.valid ? '✅ Válido' : '❌Inválido'
+          }}
+        </p>
+        <p class="mb-0" *ngIf="loginForm.get('email')?.value">
+          Email: {{ loginForm.get('email')?.value }}
+        </p>
+      </div>
     </form>
 
     <div class="auth-divider">
       <span>O continua con</span>
+    </div>
+
+    <div class="social-login">
+      <button class="btn-social btn-google" type="button" disabled>
+        <i class="fab fa-google"></i> Google
+      </button>
+      <button class="btn-social btn-facebook" type="button" disabled>
+        <i class="fab fa-facebook-f"></i> Facebook
+      </button>
     </div>
 
     <div class="auth-footer">
@@ -108,7 +158,7 @@
   </div>
 
   <div class="auth-image">
-    <img src="assets/auth-bg.jpg" alt="Pecuadex" />
+    <img src="assets/auth-bg.webp" alt="Pecuadex" />
     <div class="overlay">
       <h3>Tecnología GPS para Ganadería Moderna</h3>
       <p>Monitorea y gestiona tu ganado desde cualquier lugar</p>

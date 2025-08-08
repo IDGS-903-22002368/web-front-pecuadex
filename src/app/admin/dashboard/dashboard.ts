@@ -104,6 +104,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.authService.checkToken();
     this.loadUserInfo();
     this.loadDashboardData();
     this.initializeCharts();
