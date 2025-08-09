@@ -6,16 +6,17 @@ import { DashboardComponent } from './dashboard/dashboard';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared-module';
 import { RouterModule } from '@angular/router';
+import { Layout } from './layout/layout';
 
 const routes = [
   {
     path: '',
-    component: DashboardComponent,
+    component: Layout,
   },
 ];
 
 @NgModule({
-  declarations: [],
+  declarations: [Layout],
   imports: [
     CommonModule,
     AdminRoutingModule,
