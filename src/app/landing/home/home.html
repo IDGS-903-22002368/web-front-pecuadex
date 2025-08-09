@@ -410,36 +410,54 @@
     </div>
 
     <!-- Solo mostrar carrusel cuando hay datos -->
-    <ng-container *ngIf="!loading && testimonials && testimonials.length > 0">
-      <owl-carousel-o [options]="testimonialOptions">
-        <ng-container *ngFor="let testimonial of testimonials">
-          <ng-template carouselSlide>
-            <div class="testimonial-card">
-              <div class="quote-icon">
-                <i class="fas fa-quote-left"></i>
-              </div>
-              <p class="testimonial-text">{{ testimonial.descripcion }}</p>
-              <div class="testimonial-author">
-                <img
-                  [src]="testimonial.avatar || 'assets/default-avatar.jpg'"
-                  [alt]="testimonial.nombre || 'Usuario'"
-                  class="author-avatar"
-                />
-                <div>
-                  <h6>{{ testimonial.nombre || 'Usuario Anónimo' }}</h6>
-                  <small>{{ testimonial.role || 'Cliente' }}</small>
-                </div>
-              </div>
-              <div class="rating">
-                <i
-                  class="fas fa-star text-warning"
-                  *ngFor="let star of getStarsArray(testimonial.calificacion)"
-                ></i>
+    <ng-container *ngIf="!loading && testimonials?.length">
+      <p-carousel
+        [value]="testimonials"
+        [numVisible]="3"
+        [numScroll]="1"
+        [circular]="true"
+        [autoplayInterval]="5000"
+        [responsiveOptions]="responsiveOptions"
+        styleClass="testimonial-carousel"
+      >
+        <ng-template pTemplate="header">
+          <div class="carousel-header">
+            <i class="pi pi-comments"></i>
+            <h4>Lo que dicen nuestros clientes</h4>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="item" let-testimonial>
+          <div class="testimonial-card p-shadow-3 p-p-3 p-m-2">
+            <div class="quote-icon">
+              <i class="pi pi-quote-left"></i>
+            </div>
+            <p class="testimonial-text">{{ testimonial.descripcion }}</p>
+            <div class="testimonial-author p-d-flex p-ai-center p-mt-3">
+              <img
+                [src]="testimonial.avatar || 'assets/default-avatar.jpg'"
+                [alt]="testimonial.nombre || 'Usuario'"
+                class="author-avatar"
+              />
+              <div class="p-ml-2">
+                <h6 class="p-m-0">
+                  {{ testimonial.nombre || 'Usuario Anónimo' }}
+                </h6>
+                <small class="p-text-secondary"
+                  >{{ testimonial.role || 'Cliente' }}</small
+                >
               </div>
             </div>
-          </ng-template>
-        </ng-container>
-      </owl-carousel-o>
+            <div class="rating p-mt-2">
+              <p-rating
+                [ngModel]="testimonial.calificacion"
+                [readonly]="true"
+                [stars]="5"
+                styleClass="custom-rating"
+              ></p-rating>
+            </div>
+          </div>
+        </ng-template>
+      </p-carousel>
     </ng-container>
 
     <!-- Mensaje cuando no hay testimonios -->

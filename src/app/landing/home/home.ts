@@ -7,16 +7,16 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { OwlOptions } from 'ngx-owl-carousel-o';
 import * as AOS from 'aos';
 import Swal from 'sweetalert2';
 import { CotizacionService } from '../../core/services/cotizacion';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { CarouselModule } from 'ngx-owl-carousel-o';
+import { CarouselModule } from 'primeng/carousel';
 import { ApiService } from '../../core/services/api';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import { RatingModule } from 'primeng/rating';
 
 @Component({
   selector: 'app-home',
@@ -26,6 +26,7 @@ import { RouterModule } from '@angular/router';
     CommonModule,
     CarouselModule,
     RouterModule,
+    RatingModule,
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
@@ -38,33 +39,29 @@ export class HomeComponent implements OnInit {
   submitting = false;
   cotizacionEstimada = 0;
 
+  responsiveOptions = [
+    {
+      breakpoint: '1024px',
+      numVisible: 3,
+      numScroll: 1,
+    },
+    {
+      breakpoint: '768px',
+      numVisible: 2,
+      numScroll: 1,
+    },
+    {
+      breakpoint: '560px',
+      numVisible: 1,
+      numScroll: 1,
+    },
+  ];
+
   // Productos reales de la API
   productos: any[] = [];
   comentarios: any[] = [];
   testimonials: any[] = [];
   loading = false;
-
-  testimonialOptions: OwlOptions = {
-    loop: true,
-    mouseDrag: true,
-    touchDrag: true,
-    pullDrag: true,
-    dots: true,
-    navSpeed: 700,
-    navText: [
-      '<i class="fas fa-chevron-left"></i>',
-      '<i class="fas fa-chevron-right"></i>',
-    ],
-    responsive: {
-      0: { items: 1 },
-      768: { items: 2 },
-      1024: { items: 3 },
-    },
-    nav: true,
-    autoplay: true,
-    autoplayTimeout: 5000,
-    autoplayHoverPause: true,
-  };
 
   constructor(
     private fb: FormBuilder,

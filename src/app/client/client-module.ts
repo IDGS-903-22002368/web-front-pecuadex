@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { ClientRoutingModule } from './client-routing-module';
 import { ClientDashboardComponent } from './dashboard/dashboard';
 import { Layout } from './layout/layout';
+import { Navbar } from '../shared/components/navbar/navbar';
+import { RouterModule } from '@angular/router';
 
 const routes = [
   {
@@ -13,7 +15,14 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [Layout],
-  imports: [CommonModule, ClientRoutingModule, ClientDashboardComponent],
+  declarations: [],
+  imports: [
+    CommonModule,
+    ClientRoutingModule,
+    ClientDashboardComponent,
+    Navbar,
+    Layout,
+    RouterModule.forChild(routes),
+  ],
 })
 export class ClientModule {}

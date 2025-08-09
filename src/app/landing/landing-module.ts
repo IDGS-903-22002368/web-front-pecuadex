@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
-import { CarouselModule } from 'ngx-owl-carousel-o';
+import { CarouselModule } from 'primeng/carousel';
 
 import { HomeComponent } from './home/home';
 import { SharedModule } from '../shared/shared-module';

@@ -10,7 +10,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // Third Party Modules
 import { ToastrModule } from 'ngx-toastr';
-import { CarouselModule } from 'ngx-owl-carousel-o';
 import {
   provideCharts,
   withDefaultRegisterables,
@@ -49,7 +48,6 @@ import { CotizacionService } from './core/services/cotizacion';
       progressBar: true,
       closeButton: true,
     }),
-    CarouselModule,
   ],
   providers: [
     AuthService,

@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared-module';
 import { RouterModule } from '@angular/router';
 import { Layout } from './layout/layout';
+import { Navbar } from '../shared/components/navbar/navbar';
 
 const routes = [
   {
@@ -16,7 +17,7 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [Layout],
+  declarations: [],
   imports: [
     CommonModule,
     AdminRoutingModule,
@@ -24,6 +25,8 @@ const routes = [
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
+    Navbar,
+    Layout,
     RouterModule.forChild(routes),
   ],
 })
