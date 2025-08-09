@@ -1,0 +1,276 @@
+<div class="mis-compras-container">
+  <!-- Header -->
+  <div class="header-card">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h2 class="page-title">
+          <i class="icon-shopping-bag"></i>
+          <span>Mis Compras</span>
+        </h2>
+        <p class="page-subtitle">Historial de productos adquiridos</p>
+      </div>
+
+      <div class="toolbar-right">
+        <button class="btn btn-outline" (click)="exportCompras()">
+          <i class="icon-download"></i>
+          Exportar CSV
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla Container -->
+  <div class="table-container">
+    <!-- Table Header Controls -->
+    <div class="table-header">
+      <h3 class="table-title">Historial de Compras</h3>
+
+      <div class="table-actions">
+        <div class="search-box">
+          <i class="icon-search"></i>
+          <input
+            type="text"
+            placeholder="Buscar por producto, fecha o monto..."
+            (input)="onSearch($event)"
+            class="search-input"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando compras...</p>
+    </div>
+
+    <!-- Tabla de Compras -->
+    <div *ngIf="!loading" class="compras-wrapper">
+      <div
+        *ngFor="let compra of filteredCompras; let i = index"
+        class="compra-card"
+      >
+        <div class="compra-header">
+          <div class="compra-date">
+            <i class="icon-calendar"></i>
+            <span class="date">{{ formatDate(compra.fecha) }}</span>
+          </div>
+          <div class="compra-total">
+            <span class="total-label">Total:</span>
+            <span class="total-amount">{{ formatCurrency(compra.total) }}</span>
+          </div>
+        </div>
+
+        <div class="productos-list">
+          <div
+            *ngFor="let producto of compra.productos; let j = index"
+            class="producto-item"
+          >
+            <div class="producto-info">
+              <h4 class="producto-name">{{ producto.nombre }}</h4>
+              <div class="producto-details">
+                <span class="cantidad">Cantidad: {{ producto.cantidad }}</span>
+                <span class="precio"
+                  >Precio: {{ formatCurrency(producto.precioUnitario) }}</span
+                >
+                <span class="subtotal"
+                  >Subtotal: {{ formatCurrency(producto.subtotal) }}</span
+                >
+              </div>
+            </div>
+
+            <div class="producto-actions">
+              <!-- Comentario existente -->
+              <div
+                *ngIf="hasComentario(producto.id!)"
+                class="comentario-existente"
+              >
+                <div class="rating-display">
+                  <span
+                    *ngFor="let star of getStars(getComentario(producto.id!)!.calificacion)"
+                    class="star filled"
+                    >★</span
+                  >
+                  <span
+                    *ngFor="let star of getEmptyStars(getComentario(producto.id!)!.calificacion)"
+                    class="star"
+                    >☆</span
+                  >
+                </div>
+                <p class="comentario-text">
+                  {{ getComentario(producto.id!)!.descripcion }}
+                </p>
+                <button
+                  class="btn-link edit-comment"
+                  (click)="openComentarioDialog(producto)"
+                  title="Editar comentario"
+                >
+                  <i class="icon-edit"></i>
+                  Editar comentario
+                </button>
+              </div>
+
+              <!-- Sin comentario -->
+              <div *ngIf="!hasComentario(producto.id!)" class="no-comentario">
+                <p class="no-comment-text">¿Qué te pareció este producto?</p>
+                <button
+                  class="btn btn-primary btn-sm"
+                  (click)="openComentarioDialog(producto)"
+                >
+                  <i class="icon-comment"></i>
+                  Dejar comentario
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No hay compras -->
+      <div *ngIf="filteredCompras.length === 0" class="no-data">
+        <div class="no-data-content">
+          <i class="icon-shopping-bag-empty"></i>
+          <h3>No hay compras registradas</h3>
+          <p>
+            Cuando realices compras, aparecerán aquí para que puedas revisarlas
+            y comentarlas.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && totalItems > 0" class="pagination-container">
+      <div class="pagination-info">{{ getPaginationInfo() }}</div>
+
+      <div class="pagination-controls">
+        <select
+          class="items-per-page"
+          [value]="itemsPerPage"
+          (change)="changeItemsPerPage($event)"
+        >
+          <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+            {{ option }} por página
+          </option>
+        </select>
+
+        <div class="page-buttons">
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage <= 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            Anterior
+          </button>
+
+          <span class="page-info">
+            Página {{ currentPage }} de {{ totalPages }}
+          </span>
+
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage >= totalPages"
+            (click)="goToPage(currentPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Comentario -->
+<div class="modal-overlay" *ngIf="dialogVisible" (click)="hideDialog()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditMode ? 'Editar Comentario' : 'Dejar Comentario' }}</h3>
+      <button class="btn-close" (click)="hideDialog()">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="comentarioForm" class="modal-body">
+      <div *ngIf="selectedProducto" class="producto-info-modal">
+        <h4>{{ selectedProducto.nombre }}</h4>
+        <p class="producto-subtitle">
+          Comprado por {{ formatCurrency(selectedProducto.precioUnitario) }}
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="calificacion" class="form-label required"
+          >Calificación</label
+        >
+        <div class="rating-input">
+          <input
+            type="range"
+            id="calificacion"
+            formControlName="calificacion"
+            min="1"
+            max="5"
+            step="1"
+            class="rating-slider"
+          />
+          <div class="rating-display">
+            <span
+              *ngFor="let star of getStars(calificacionControl?.value || 1)"
+              class="star filled"
+              >★</span
+            >
+            <span
+              *ngFor="let star of getEmptyStars(calificacionControl?.value || 1)"
+              class="star"
+              >☆</span
+            >
+            <span class="rating-text"
+              >({{ calificacionControl?.value || 1 }}/5)</span
+            >
+          </div>
+        </div>
+        <div
+          *ngIf="submitted && calificacionControl?.invalid"
+          class="error-message"
+        >
+          <span *ngIf="calificacionControl?.errors?.['required']">
+            La calificación es requerida
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="descripcion" class="form-label required">
+          Tu opinión sobre este producto
+        </label>
+        <textarea
+          id="descripcion"
+          formControlName="descripcion"
+          rows="4"
+          class="form-textarea"
+          placeholder="Cuéntanos qué te pareció este producto, su calidad, si cumplió tus expectativas..."
+          [class.error]="submitted && descripcionControl?.invalid"
+        ></textarea>
+        <div
+          *ngIf="submitted && descripcionControl?.invalid"
+          class="error-message"
+        >
+          <span *ngIf="descripcionControl?.errors?.['required']">
+            El comentario es requerido
+          </span>
+          <span *ngIf="descripcionControl?.errors?.['minlength']">
+            El comentario debe tener al menos 10 caracteres
+          </span>
+        </div>
+      </div>
+    </form>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" (click)="hideDialog()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-primary" (click)="saveComentario()">
+        {{ isEditMode ? 'Actualizar' : 'Guardar' }} Comentario
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Navbar } from '../../shared/components/navbar/navbar';
 import { CommonModule } from '@angular/common';
+import { MisCompras } from '../mis-compras/mis-compras';
 
 interface NavItem {
   label: string;
@@ -16,7 +17,7 @@ interface NavItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [Navbar, CommonModule],
+  imports: [Navbar, CommonModule, MisCompras],
   template: `
     <div class="client-layout">
       <!-- Navbar -->
@@ -32,22 +33,47 @@ interface NavItem {
       <main class="main-content">
         <div class="container-fluid py-4">
           <!-- Dashboard Component -->
-          <div *ngIf="activeComponent === 'dashboard'" class="fade-in"></div>
+          <div *ngIf="activeComponent === 'dashboard'" class="fade-in">
+            <div class="dashboard-placeholder">
+              <h2>Dashboard del Cliente</h2>
+              <p>
+                Aquí irá el dashboard con estadísticas de compras, productos
+                favoritos, etc.
+              </p>
+            </div>
+          </div>
 
           <!-- Mis Compras Component -->
-          <div *ngIf="activeComponent === 'mis-compras'" class="fade-in"></div>
+          <div *ngIf="activeComponent === 'mis-compras'" class="fade-in">
+            <app-mis-compras></app-mis-compras>
+          </div>
 
           <!-- Documentación Component -->
-          <div
-            *ngIf="activeComponent === 'documentacion'"
-            class="fade-in"
-          ></div>
+          <div *ngIf="activeComponent === 'documentacion'" class="fade-in">
+            <div class="documentation-placeholder">
+              <h2>Documentación</h2>
+              <p>
+                Aquí irán los manuales y documentación de los productos
+                comprados.
+              </p>
+            </div>
+          </div>
 
           <!-- Perfil Component -->
-          <div *ngIf="activeComponent === 'perfil'" class="fade-in"></div>
+          <div *ngIf="activeComponent === 'perfil'" class="fade-in">
+            <div class="profile-placeholder">
+              <h2>Mi Perfil</h2>
+              <p>Aquí irá la gestión del perfil del cliente.</p>
+            </div>
+          </div>
 
           <!-- Default: Dashboard cuando no hay componente activo -->
-          <div *ngIf="!activeComponent" class="fade-in"></div>
+          <div *ngIf="!activeComponent" class="fade-in">
+            <div class="dashboard-placeholder">
+              <h2>Bienvenido al Panel de Cliente</h2>
+              <p>Selecciona una opción del menú para comenzar.</p>
+            </div>
+          </div>
         </div>
       </main>
     </div>
@@ -82,6 +108,28 @@ interface NavItem {
 
       .container-fluid {
         max-width: 1400px;
+      }
+
+      // Placeholders para otros componentes
+      .dashboard-placeholder,
+      .documentation-placeholder,
+      .profile-placeholder {
+        background: white;
+        border-radius: 0.375rem;
+        padding: 2rem;
+        margin: 1rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        text-align: center;
+
+        h2 {
+          color: #2e7d32;
+          margin-bottom: 1rem;
+        }
+
+        p {
+          color: #6c757d;
+          margin: 0;
+        }
       }
     `,
   ],

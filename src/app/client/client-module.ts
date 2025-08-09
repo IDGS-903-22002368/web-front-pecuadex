@@ -6,6 +6,7 @@ import { ClientDashboardComponent } from './dashboard/dashboard';
 import { Layout } from './layout/layout';
 import { Navbar } from '../shared/components/navbar/navbar';
 import { RouterModule } from '@angular/router';
+import { MisCompras } from './mis-compras/mis-compras';
 
 const routes = [
   {
@@ -21,6 +22,7 @@ const routes = [
     ClientRoutingModule,
     ClientDashboardComponent,
     Navbar,
+    MisCompras,
     Layout,
     RouterModule.forChild(routes),
   ],
