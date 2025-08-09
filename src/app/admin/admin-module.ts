@@ -8,6 +8,7 @@ import { SharedModule } from '../shared/shared-module';
 import { RouterModule } from '@angular/router';
 import { Layout } from './layout/layout';
 import { Navbar } from '../shared/components/navbar/navbar';
+import { Producto } from './producto/producto';
 
 const routes = [
   {
@@ -27,6 +28,7 @@ const routes = [
     SharedModule,
     Navbar,
     Layout,
+    Producto,
     RouterModule.forChild(routes),
   ],
 })

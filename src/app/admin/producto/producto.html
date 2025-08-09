@@ -1,0 +1,423 @@
+<div class="productos-container">
+  <!-- Header -->
+  <div class="header-card">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h2 class="page-title">
+          <i class="icon-box"></i>
+          <span>Gestión de Productos</span>
+        </h2>
+      </div>
+
+      <div class="toolbar-right">
+        <button class="btn btn-success" (click)="openNew()">
+          <i class="icon-plus"></i>
+          Nuevo Producto
+        </button>
+
+        <button
+          class="btn btn-danger"
+          (click)="deleteSelectedProducts()"
+          [disabled]="selectedProductos.length === 0"
+        >
+          <i class="icon-trash"></i>
+          Eliminar Seleccionados
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla Container -->
+  <div class="table-container">
+    <!-- Table Header Controls -->
+    <div class="table-header">
+      <h3 class="table-title">Listado de Productos</h3>
+
+      <div class="table-actions">
+        <button class="btn btn-outline" (click)="exportExcel()">
+          <i class="icon-download"></i>
+          Exportar CSV
+        </button>
+
+        <div class="search-box">
+          <i class="icon-search"></i>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            (input)="onSearch($event)"
+            class="search-input"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando productos...</p>
+    </div>
+
+    <!-- Tabla -->
+    <div *ngIf="!loading" class="table-wrapper">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th class="checkbox-col">
+              <input
+                type="checkbox"
+                [checked]="isAllSelected()"
+                (change)="toggleSelectAll()"
+                class="checkbox"
+              />
+            </th>
+            <th class="sortable" (click)="sort('id')">
+              ID
+              <i class="icon-{{ getSortIcon('id') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('nombre')">
+              Nombre
+              <i class="icon-{{ getSortIcon('nombre') }}"></i>
+            </th>
+            <th>Imagen</th>
+            <th class="sortable" (click)="sort('descripcion')">
+              Descripción
+              <i class="icon-{{ getSortIcon('descripcion') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('precioSugerido')">
+              Precio
+              <i class="icon-{{ getSortIcon('precioSugerido') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('fechaRegistro')">
+              Fecha Registro
+              <i class="icon-{{ getSortIcon('fechaRegistro') }}"></i>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let producto of filteredProductos; let i = index"
+            [class.selected]="isSelected(producto)"
+          >
+            <td>
+              <input
+                type="checkbox"
+                [checked]="isSelected(producto)"
+                (change)="toggleSelect(producto)"
+                class="checkbox"
+              />
+            </td>
+            <td class="font-bold">{{ producto.id }}</td>
+            <td class="product-name">{{ producto.nombre }}</td>
+            <td>
+              <img
+                [src]="producto.imagen || 'https://via.placeholder.com/100x80?text=Sin+Imagen'"
+                [alt]="producto.nombre"
+                (error)="onImageError($event)"
+                class="product-image"
+                width="80"
+                height="60"
+              />
+            </td>
+            <td class="description-col" [title]="producto.descripcion">
+              {{ truncateText(producto.descripcion, 60) }}
+            </td>
+            <td class="price-col">
+              {{ formatCurrency(producto.precioSugerido) }}
+            </td>
+            <td>{{ producto.fechaRegistro | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button
+                  class="btn-icon btn-edit"
+                  (click)="editProduct(producto)"
+                  title="Editar"
+                >
+                  <i class="icon-edit"></i>
+                </button>
+                <button
+                  class="btn-icon btn-delete"
+                  (click)="deleteProduct(producto)"
+                  title="Eliminar"
+                >
+                  <i class="icon-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredProductos.length === 0" class="no-data">
+            <td colspan="8" class="text-center">No se encontraron productos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && totalItems > 0" class="pagination-container">
+      <div class="pagination-info">{{ getPaginationInfo() }}</div>
+
+      <div class="pagination-controls">
+        <select
+          class="items-per-page"
+          [value]="itemsPerPage"
+          (change)="changeItemsPerPage($event)"
+        >
+          <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+            {{ option }} por página
+          </option>
+        </select>
+
+        <div class="page-buttons">
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage <= 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            Anterior
+          </button>
+
+          <span class="page-info">
+            Página {{ currentPage }} de {{ totalPages }}
+          </span>
+
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage >= totalPages"
+            (click)="goToPage(currentPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Crear/Editar Producto -->
+<div class="modal-overlay" *ngIf="dialogVisible" (click)="hideDialog()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditMode ? 'Editar Producto' : 'Nuevo Producto' }}</h3>
+      <button class="btn-close" (click)="hideDialog()">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="productoForm" class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombre" class="form-label required">Nombre</label>
+          <input
+            id="nombre"
+            type="text"
+            formControlName="nombre"
+            class="form-input"
+            [class.error]="submitted && nombreControl?.invalid"
+          />
+          <div
+            *ngIf="submitted && nombreControl?.invalid"
+            class="error-message"
+          >
+            <span *ngIf="nombreControl?.errors?.['required']"
+              >El nombre es requerido</span
+            >
+            <span *ngIf="nombreControl?.errors?.['minlength']"
+              >El nombre debe tener al menos 3 caracteres</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="descripcion" class="form-label required"
+            >Descripción</label
+          >
+          <textarea
+            id="descripcion"
+            formControlName="descripcion"
+            rows="3"
+            class="form-textarea"
+            [class.error]="submitted && descripcionControl?.invalid"
+          ></textarea>
+          <div
+            *ngIf="submitted && descripcionControl?.invalid"
+            class="error-message"
+          >
+            <span *ngIf="descripcionControl?.errors?.['required']"
+              >La descripción es requerida</span
+            >
+            <span *ngIf="descripcionControl?.errors?.['minlength']"
+              >La descripción debe tener al menos 10 caracteres</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="precio" class="form-label required"
+            >Precio Sugerido</label
+          >
+          <input
+            id="precio"
+            type="number"
+            step="0.01"
+            min="0"
+            formControlName="precioSugerido"
+            class="form-input"
+            [class.error]="submitted && precioSugeridoControl?.invalid"
+          />
+          <div
+            *ngIf="submitted && precioSugeridoControl?.invalid"
+            class="error-message"
+          >
+            <span *ngIf="precioSugeridoControl?.errors?.['required']"
+              >El precio es requerido</span
+            >
+            <span *ngIf="precioSugeridoControl?.errors?.['min']"
+              >El precio debe ser mayor a 0</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="imagen" class="form-label required">Imagen</label>
+          <input
+            type="text"
+            formControlName="imagen"
+            placeholder="assets/images/mi-producto.jpg"
+            class="form-input"
+            [class.error]="submitted && imagenControl?.invalid"
+          />
+
+          <div class="image-upload-container">
+            <label class="file-upload-label">
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onImageUpload($event)"
+                class="file-input-hidden"
+              />
+              <span class="file-upload-button">
+                <i class="icon-upload"></i>
+                Seleccionar archivo (assets/images/)
+              </span>
+            </label>
+            <small class="form-text">
+              Selecciona un archivo para generar la ruta de assets, o ingresa la
+              ruta manualmente arriba
+            </small>
+          </div>
+
+          <!-- Rutas de ejemplo -->
+          <div class="example-paths">
+            <small class="form-text"><strong>Ejemplos de rutas:</strong></small>
+            <div class="path-examples">
+              <button
+                type="button"
+                class="path-button"
+                (click)="productoForm.patchValue({imagen: 'assets/images/producto-default.jpg'})"
+              >
+                assets/images/producto-default.jpg
+              </button>
+              <button
+                type="button"
+                class="path-button"
+                (click)="productoForm.patchValue({imagen: 'assets/images/no-image.png'})"
+              >
+                assets/images/no-image.png
+              </button>
+            </div>
+          </div>
+
+          <div
+            *ngIf="submitted && imagenControl?.invalid"
+            class="error-message"
+          >
+            <span *ngIf="imagenControl?.errors?.['required']"
+              >La ruta de la imagen es requerida</span
+            >
+          </div>
+
+          <!-- Preview de imagen -->
+          <div *ngIf="showImagePreview" class="image-preview">
+            <img
+              [src]="imagenControl?.value"
+              alt="Preview"
+              (error)="onImageError($event)"
+              class="preview-image"
+            />
+            <p class="image-path">
+              <strong>Ruta:</strong> {{ imagenControl?.value }}
+            </p>
+            <small
+              class="form-text"
+              *ngIf="isAssetsImage(imagenControl?.value)"
+            >
+              ✅ Imagen desde assets (local)
+            </small>
+            <small
+              class="form-text"
+              *ngIf="!isAssetsImage(imagenControl?.value)"
+            >
+              🌐 Imagen externa
+            </small>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" (click)="hideDialog()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-primary" (click)="saveProduct()">
+        {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div
+  class="modal-overlay"
+  *ngIf="deleteDialogVisible"
+  (click)="deleteDialogVisible = false"
+>
+  <div class="modal-container small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Confirmar Eliminación</h3>
+      <button class="btn-close" (click)="deleteDialogVisible = false">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="confirmation-content">
+        <i class="icon-warning"></i>
+        <p>
+          ¿Está seguro de que desea eliminar el producto
+          <strong>{{ productToDelete?.nombre }}</strong>?
+        </p>
+        <p class="text-muted">Esta acción no se puede deshacer.</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="deleteDialogVisible = false"
+      >
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

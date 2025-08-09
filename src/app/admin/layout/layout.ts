@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Navbar } from '../../shared/components/navbar/navbar';
 import { CommonModule } from '@angular/common';
+import { Producto } from '../producto/producto';
 
 interface NavItem {
   label: string;
@@ -16,7 +17,7 @@ interface NavItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [Navbar, CommonModule],
+  imports: [Navbar, CommonModule, Producto],
   template: `
     <div class="admin-layout">
       <!-- Navbar -->
@@ -56,7 +57,9 @@ interface NavItem {
           ></div>
 
           <!-- Productos Component -->
-          <div *ngIf="activeComponent === 'productos'" class="fade-in"></div>
+          <div *ngIf="activeComponent === 'productos'" class="fade-in">
+            <app-productos></app-productos>
+          </div>
 
           <!-- Perfil Component -->
           <div *ngIf="activeComponent === 'perfil'" class="fade-in"></div>
