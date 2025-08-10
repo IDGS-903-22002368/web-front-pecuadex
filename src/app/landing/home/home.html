@@ -399,70 +399,229 @@
     <div class="text-center mb-5" data-aos="fade-up">
       <span class="badge bg-info text-white mb-3">Testimonios</span>
       <h2 class="display-5 fw-bold">Lo que dicen nuestros clientes</h2>
-      <p class="lead">Historias de éxito de ganaderos como tú</p>
+      <p class="lead">Experiencias reales de usuarios de Pecuadex GPS</p>
     </div>
 
     <!-- Loading indicator -->
-    <div *ngIf="loading" class="text-center">
-      <div class="spinner-border text-primary" role="status">
+    <div *ngIf="loading" class="text-center py-5">
+      <div
+        class="spinner-border text-primary"
+        role="status"
+        style="width: 3rem; height: 3rem"
+      >
         <span class="visually-hidden">Cargando testimonios...</span>
       </div>
+      <p class="mt-3 text-muted">
+        Cargando testimonios reales de nuestros clientes...
+      </p>
     </div>
 
-    <!-- Solo mostrar carrusel cuando hay datos -->
-    <ng-container *ngIf="!loading && testimonials?.length">
+    <!-- Carrusel de testimonios cuando hay datos reales -->
+    <ng-container *ngIf="!loading && testimonials!.length > 0">
       <p-carousel
         [value]="testimonials"
         [numVisible]="3"
-        [numScroll]="1"
+        [numScroll]="3"
         [circular]="true"
-        [autoplayInterval]="5000"
+        [autoplayInterval]="8000"
         [responsiveOptions]="responsiveOptions"
         styleClass="testimonial-carousel"
+        [showNavigators]="testimonials.length > 3"
+        [showIndicators]="testimonials.length > 3"
       >
-        <ng-template pTemplate="header">
-          <div class="carousel-header">
-            <i class="pi pi-comments"></i>
-            <h4>Lo que dicen nuestros clientes</h4>
-          </div>
-        </ng-template>
         <ng-template pTemplate="item" let-testimonial>
-          <div class="testimonial-card p-shadow-3 p-p-3 p-m-2">
-            <div class="quote-icon">
-              <i class="pi pi-quote-left"></i>
-            </div>
-            <p class="testimonial-text">{{ testimonial.descripcion }}</p>
-            <div class="testimonial-author p-d-flex p-ai-center p-mt-3">
-              <img
-                [src]="testimonial.avatar || 'assets/default-avatar.jpg'"
-                [alt]="testimonial.nombre || 'Usuario'"
-                class="author-avatar"
-              />
-              <div class="p-ml-2">
-                <h6 class="p-m-0">
-                  {{ testimonial.nombre || 'Usuario Anónimo' }}
-                </h6>
-                <small class="p-text-secondary"
-                  >{{ testimonial.role || 'Cliente' }}</small
+          <div class="testimonial-card-wrapper p-2">
+            <div class="testimonial-card h-100">
+              <!-- Header del testimonio con datos reales -->
+              <div class="testimonial-header d-flex align-items-center mb-3">
+                <div class="testimonial-avatar-container me-3">
+                  <img
+                    [src]="testimonial.avatar"
+                    [alt]="testimonial.nombreCliente"
+                    class="testimonial-avatar"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+                  />
+                  <div
+                    class="testimonial-avatar-fallback"
+                    style="display: none"
+                  >
+                    {{ testimonial.iniciales }}
+                  </div>
+                </div>
+                <div class="testimonial-info flex-grow-1">
+                  <h6 class="testimonial-name mb-1">
+                    {{ testimonial.nombreCliente }}
+                  </h6>
+                  <p class="testimonial-role mb-0">{{ testimonial.role }}</p>
+                  <small class="testimonial-product text-muted">
+                    <i class="fas fa-star me-1"></i>
+                    {{ testimonial.nombreProducto }}
+                  </small>
+                </div>
+                <!-- Badge de verificado -->
+                <div class="verified-badge">
+                  <i
+                    class="fas fa-check-circle text-success"
+                    title="Cliente verificado"
+                  ></i>
+                </div>
+              </div>
+
+              <!-- Rating con calificación real -->
+              <div class="testimonial-rating mb-3">
+                <div class="stars-container">
+                  <span
+                    *ngFor="let star of testimonial.estrellasArray"
+                    class="star-filled"
+                  >
+                    <i class="fas fa-star"></i>
+                  </span>
+                  <span
+                    *ngFor="let empty of getEmptyStarsArray(testimonial.calificacion)"
+                    class="star-empty"
+                  >
+                    <i class="far fa-star"></i>
+                  </span>
+                </div>
+                <span class="rating-text ms-2"
+                  >{{ testimonial.calificacion }}/5</span
                 >
               </div>
-            </div>
-            <div class="rating p-mt-2">
-              <p-rating
-                [ngModel]="testimonial.calificacion"
-                [readonly]="true"
-                [stars]="5"
-                styleClass="custom-rating"
-              ></p-rating>
+
+              <!-- Contenido del testimonio real -->
+              <div class="testimonial-content">
+                <div class="quote-icon mb-2">
+                  <i class="fas fa-quote-left"></i>
+                </div>
+                <p class="testimonial-text">
+                  {{ testimonial.descripcionLimpia }}
+                </p>
+              </div>
+
+              <!-- Footer con fecha real -->
+              <div class="testimonial-footer mt-auto">
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="testimonial-date text-muted">
+                    <i class="fas fa-clock me-1"></i>
+                    {{ testimonial.fechaFormateada }}
+                  </small>
+                </div>
+              </div>
             </div>
           </div>
         </ng-template>
       </p-carousel>
+
+      <!-- Estadísticas reales basadas en los datos del API -->
+      <div class="testimonial-stats mt-5 text-center" data-aos="fade-up">
+        <div class="row">
+          <div class="col-md-3 col-6 mb-3">
+            <div class="stat-item">
+              <h3 class="stat-number text-primary">
+                {{ getTotalTestimonios() }}
+              </h3>
+              <p class="stat-label">Testimonios Reales</p>
+            </div>
+          </div>
+          <div class="col-md-3 col-6 mb-3">
+            <div class="stat-item">
+              <h3 class="stat-number text-success">
+                {{ getPromedioCalificaciones() }}
+              </h3>
+              <p class="stat-label">Calificación Promedio</p>
+            </div>
+          </div>
+          <div class="col-md-3 col-6 mb-3">
+            <div class="stat-item">
+              <h3 class="stat-number text-warning">100%</h3>
+              <p class="stat-label">Clientes Verificados</p>
+            </div>
+          </div>
+          <div class="col-md-3 col-6 mb-3">
+            <div class="stat-item">
+              <h3 class="stat-number text-info">{{ comentarios.length }}</h3>
+              <p class="stat-label">Total Comentarios</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información de autenticidad -->
+      <div class="authenticity-notice mt-4 text-center" data-aos="fade-up">
+        <div class="alert alert-info border-0 rounded-3">
+          <i class="fas fa-shield-check text-success me-2"></i>
+          <strong>Testimonios 100% Auténticos</strong> - Todos los comentarios
+          provienen de clientes reales que han adquirido nuestros productos.
+        </div>
+      </div>
     </ng-container>
 
-    <!-- Mensaje cuando no hay testimonios -->
-    <div *ngIf="!loading && testimonials?.length === 0" class="text-center">
-      <p class="text-muted">No hay testimonios disponibles en este momento.</p>
+    <!-- Mensaje cuando no hay testimonios reales -->
+    <div
+      *ngIf="!loading && (!testimonials || testimonials.length === 0)"
+      class="text-center py-5"
+    >
+      <div class="no-testimonials-message">
+        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">Aún no hay testimonios disponibles</h4>
+        <p class="text-muted">
+          Sé el primero en compartir tu experiencia con Pecuadex GPS.<br />
+          Los testimonios aparecerán aquí una vez que nuestros clientes dejen
+          sus comentarios.
+        </p>
+
+        <!-- Botón para recargar testimonios -->
+        <button class="btn btn-outline-primary" (click)="recargarTestimonios()">
+          <i class="fas fa-refresh me-2"></i>
+          Verificar nuevamente
+        </button>
+      </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div
+      class="text-center mt-5"
+      data-aos="fade-up"
+      *ngIf="testimonials!.length > 0"
+    >
+      <h4 class="mb-3">¿Listo para ser nuestro próximo cliente satisfecho?</h4>
+      <button
+        class="btn btn-primary-custom btn-lg me-3"
+        (click)="scrollToSection('cotizacion')"
+      >
+        <i class="fas fa-calculator me-2"></i>
+        Solicitar Cotización
+      </button>
+      <button class="btn btn-outline-primary btn-lg" (click)="contactSales()">
+        <i class="fas fa-phone me-2"></i>
+        Contactar Ventas
+      </button>
+    </div>
+
+    <!-- Invitación a dejar comentario si no hay testimonios -->
+    <div
+      class="text-center mt-5"
+      data-aos="fade-up"
+      *ngIf="!testimonials?.length"
+    >
+      <h4 class="mb-3">¡Conoce más sobre Pecuadex GPS!</h4>
+      <p class="mb-4">
+        Solicita una demostración gratuita y descubre cómo podemos ayudarte.
+      </p>
+      <button
+        class="btn btn-primary-custom btn-lg me-3"
+        (click)="scrollToSection('cotizacion')"
+      >
+        <i class="fas fa-play me-2"></i>
+        Ver Demostración
+      </button>
+      <button
+        class="btn btn-outline-primary btn-lg"
+        (click)="scrollToSection('contacto')"
+      >
+        <i class="fas fa-envelope me-2"></i>
+        Más Información
+      </button>
     </div>
   </div>
 </section>

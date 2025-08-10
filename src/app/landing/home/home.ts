@@ -41,24 +41,28 @@ export class HomeComponent implements OnInit {
 
   responsiveOptions = [
     {
+      breakpoint: '1400px',
+      numVisible: 3,
+      numScroll: 3,
+    },
+    {
       breakpoint: '1024px',
       numVisible: 3,
-      numScroll: 1,
+      numScroll: 3,
     },
     {
       breakpoint: '768px',
       numVisible: 2,
-      numScroll: 1,
+      numScroll: 2,
     },
     {
-      breakpoint: '560px',
+      breakpoint: '576px',
       numVisible: 1,
       numScroll: 1,
     },
   ];
 
-  // Productos reales de la API
-  productos: any[] = [];
+  // Propiedades para testimonios
   comentarios: any[] = [];
   testimonials: any[] = [];
   loading = false;
@@ -98,26 +102,43 @@ export class HomeComponent implements OnInit {
       offset: 100,
     });
 
-    this.cargarDatos();
+    this.cargarTestimonios();
     this.startCounters();
   }
 
-  cargarDatos(): void {
+  // Método para cargar testimonios usando solo datos del API
+  cargarTestimonios(): void {
     this.loading = true;
+    console.log('Cargando testimonios desde API...');
 
     this.apiService.getComentarios().subscribe({
-      next: (comentarios) => {
-        console.log('Datos recibidos del API:', comentarios);
+      next: (response) => {
+        console.log('Respuesta del API:', response);
 
-        if (comentarios && Array.isArray(comentarios)) {
-          this.comentarios = comentarios;
-          // ✅ CORREGIDO: Filtrar y mapear datos DESPUÉS de recibirlos
-          this.testimonials = comentarios
-            .filter((c) => c.calificacion >= 4)
-            .map(this.enhanceTestimonialData);
+        if (response && Array.isArray(response)) {
+          this.comentarios = response;
 
-          console.log('Testimonials procesados:', this.testimonials.length);
+          // Filtrar comentarios con calificación >= 4 y que tengan descripción
+          const comentariosFiltrados = this.comentarios.filter(
+            (comentario) =>
+              comentario.calificacion >= 4 &&
+              comentario.descripcion &&
+              comentario.descripcion.trim().length > 0 &&
+              comentario.nombreCliente // Asegurar que tenga nombre de cliente
+          );
+
+          console.log(
+            `Comentarios filtrados: ${comentariosFiltrados.length} de ${this.comentarios.length}`
+          );
+
+          // Procesar testimonios usando solo datos reales
+          this.testimonials = comentariosFiltrados.map(
+            this.procesarTestimonialReal
+          );
+
+          console.log('Testimonials procesados:', this.testimonials);
         } else {
+          console.warn('La respuesta no es un array válido:', response);
           this.testimonials = [];
         }
 
@@ -131,98 +152,133 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  private enhanceTestimonialData = (testimonial: any) => {
+  // Método para procesar testimonial usando solo datos reales del API
+  private procesarTestimonialReal = (comentario: any) => {
     return {
-      ...testimonial,
-      // Generar nombre basado en ID
-      nombre: this.generateClientName(testimonial.id),
-      // Generar empresa ficticia
-      empresa: this.generateCompanyName(testimonial.productoId),
-      // Generar ubicación
-      ubicacion: this.generateLocation(),
-      // Avatar generado automáticamente
-      avatar: this.generateAvatar(testimonial.id),
-      // Fecha formateada de manera legible
-      fechaFormateada: this.formatRelativeDate(testimonial.fecha),
-      // Array para estrellas llenas
-      estrellas: Array(testimonial.calificacion).fill(0),
-      // Array para estrellas vacías
-      estrellasVacias: Array(5 - testimonial.calificacion).fill(0),
-      // Descripción truncada si es muy larga
-      descripcionTruncada: this.truncateText(testimonial.descripcion, 120),
+      // Datos originales del API
+      id: comentario.id,
+      ventaId: comentario.ventaId,
+      productoId: comentario.productoId,
+      calificacion: comentario.calificacion,
+      descripcion: comentario.descripcion,
+      fecha: comentario.fecha,
+      nombreCliente: comentario.nombreCliente,
+      nombreProducto: comentario.nombreProducto,
+
+      // Procesamiento de datos para la UI
+      nombre: comentario.nombreCliente,
+      producto: comentario.nombreProducto,
+      role: `Cliente verificado`, // Rol genérico para todos
+      avatar: this.generarAvatar(comentario.nombreCliente),
+      fechaFormateada: this.formatearFechaRelativa(comentario.fecha),
+      descripcionLimpia: this.limpiarDescripcion(comentario.descripcion),
+      estrellasArray: Array(
+        Math.min(Math.max(comentario.calificacion || 5, 1), 5)
+      ).fill(1),
+
+      // Datos calculados
+      iniciales: this.obtenerIniciales(comentario.nombreCliente),
+      fechaOriginal: comentario.fecha,
     };
   };
 
-  private generateClientName(id: number): string {
-    const nombres = [
-      'María González',
-      'Juan Pérez',
-      'Ana Rodríguez',
-      'Carlos López',
-      'Patricia Martínez',
-      'Roberto Sánchez',
-      'Laura Fernández',
-      'Miguel Torres',
-    ];
-    return nombres[id % nombres.length] || `Cliente ${id}`;
-  }
+  // Método para generar avatar basado en el nombre real
+  private generarAvatar(nombreCliente: string): string {
+    if (!nombreCliente)
+      return 'https://ui-avatars.com/api/?name=Cliente&size=80&background=2E7D32&color=fff&rounded=true';
 
-  private generateCompanyName(productoId: number): string {
-    const empresas = [
-      'Ganadería San José',
-      'Rancho El Mirador',
-      'Agropecuaria La Esperanza',
-      'Estancia Los Álamos',
-      'Hacienda Santa María',
-      'Rancho Vista Hermosa',
-    ];
-    return empresas[productoId % empresas.length] || 'Empresa Ganadera';
-  }
-
-  private generateLocation(): string {
-    const ubicaciones = [
-      'Jalisco, México',
-      'Sonora, México',
-      'Chihuahua, México',
-      'Veracruz, México',
-      'Yucatán, México',
-      'Nuevo León, México',
-    ];
-    return ubicaciones[Math.floor(Math.random() * ubicaciones.length)];
-  }
-
-  private generateAvatar(id: number): string {
-    const name = this.generateClientName(id);
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      name
+      nombreCliente
     )}&size=80&background=2E7D32&color=fff&rounded=true`;
   }
 
-  private formatRelativeDate(fechaISO: string): string {
-    const fecha = new Date(fechaISO);
-    const ahora = new Date();
-    const diffTime = Math.abs(ahora.getTime() - fecha.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // Método para obtener iniciales del nombre real
+  private obtenerIniciales(nombreCliente: string): string {
+    if (!nombreCliente) return 'C';
 
-    if (diffDays === 1) return 'hace 1 día';
-    if (diffDays < 7) return `hace ${diffDays} días`;
-    if (diffDays < 30) return `hace ${Math.ceil(diffDays / 7)} semanas`;
-    return `hace ${Math.ceil(diffDays / 30)} meses`;
+    return nombreCliente
+      .split(' ')
+      .map((palabra) => palabra.charAt(0).toUpperCase())
+      .slice(0, 2) // Máximo 2 iniciales
+      .join('');
   }
 
-  private truncateText(text: string, maxLength: number): string {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength).trim() + '...';
+  // Método para limpiar y mejorar la descripción
+  private limpiarDescripcion(descripcion: string): string {
+    if (!descripcion) return '';
+
+    // Limpiar la descripción
+    let descripcionLimpia = descripcion.trim();
+
+    // Limitar longitud si es muy larga
+    if (descripcionLimpia.length > 200) {
+      descripcionLimpia = descripcionLimpia.substring(0, 197) + '...';
+    }
+
+    // Asegurar que termina con punto si no tiene puntuación
+    if (!descripcionLimpia.match(/[.!?]$/)) {
+      descripcionLimpia += '.';
+    }
+
+    return descripcionLimpia;
   }
 
-  getStarsArray(calificacion: number): number[] {
-    return Array(Math.min(Math.max(calificacion, 0), 5)).fill(1);
+  // Método para formatear fecha relativa usando la fecha real del API
+  private formatearFechaRelativa(fechaISO: string): string {
+    if (!fechaISO) return 'Recientemente';
+
+    try {
+      const fecha = new Date(fechaISO);
+      const ahora = new Date();
+      const diffTime = Math.abs(ahora.getTime() - fecha.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+
+      if (diffHours < 1) return 'Hace unos minutos';
+      if (diffHours < 24) return `Hace ${diffHours} horas`;
+      if (diffDays === 1) return 'Hace 1 día';
+      if (diffDays < 7) return `Hace ${diffDays} días`;
+      if (diffDays < 30) return `Hace ${Math.ceil(diffDays / 7)} semanas`;
+      if (diffDays < 365) return `Hace ${Math.ceil(diffDays / 30)} meses`;
+      return `Hace ${Math.ceil(diffDays / 365)} años`;
+    } catch (error) {
+      console.error('Error formateando fecha:', error);
+      return 'Recientemente';
+    }
   }
 
+  // Método para obtener estrellas vacías
   getEmptyStarsArray(calificacion: number): number[] {
-    return Array(Math.max(5 - calificacion, 0)).fill(1);
+    const estrellasVacias = Math.max(5 - (calificacion || 0), 0);
+    return Array(estrellasVacias).fill(1);
   }
 
+  // Método para calcular promedio de calificaciones reales
+  getPromedioCalificaciones(): number {
+    if (!this.testimonials || this.testimonials.length === 0) return 0;
+
+    const suma = this.testimonials.reduce(
+      (acc, testimonial) => acc + (testimonial.calificacion || 0),
+      0
+    );
+    return Math.round((suma / this.testimonials.length) * 10) / 10; // Redondear a 1 decimal
+  }
+
+  // Método para obtener total de testimonios reales
+  getTotalTestimonios(): number {
+    return this.testimonials ? this.testimonials.length : 0;
+  }
+
+  // Método para forzar recarga de testimonios
+  recargarTestimonios(): void {
+    this.testimonials = [];
+    this.loading = true;
+    setTimeout(() => {
+      this.cargarTestimonios();
+    }, 500);
+  }
+
+  // Resto de métodos existentes sin cambios...
   calcularEstimacion(values: any): void {
     if (values.cantidadDispositivos > 0) {
       let precioBase = 2500;
@@ -313,7 +369,6 @@ export class HomeComponent implements OnInit {
 
     this.submitting = true;
 
-    // Llamar a la API real
     this.apiService.solicitarCotizacion(this.cotizacionForm.value).subscribe({
       next: (response: any) => {
         this.submitting = false;
@@ -337,7 +392,6 @@ export class HomeComponent implements OnInit {
             confirmButtonColor: '#2E7D32',
           });
 
-          // Limpiar formulario
           this.cotizacionForm.reset({
             cantidadDispositivos: 1,
             cantidadAnimales: 1,
@@ -365,8 +419,6 @@ export class HomeComponent implements OnInit {
 
   downloadDatasheet(): void {
     this.toastr.info('Descargando ficha técnica...', 'Descarga');
-
-    // Simular descarga de PDF
     const link = document.createElement('a');
     link.href = '/assets/documents/pecuadex-gps-datasheet.pdf';
     link.download = 'Pecuadex-GPS-Ficha-Tecnica.pdf';
