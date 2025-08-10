@@ -35,14 +35,6 @@ export interface MiManualData {
               <i class="icon-download"></i>
               Exportar Lista
             </button>
-            <button
-              class="btn btn-primary"
-              (click)="reloadManuales()"
-              [disabled]="loading"
-            >
-              <i class="icon-refresh"></i>
-              Actualizar
-            </button>
           </div>
         </div>
       </div>
