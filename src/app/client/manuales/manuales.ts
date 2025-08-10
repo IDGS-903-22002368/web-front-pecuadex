@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api';
 import { ToastrService } from 'ngx-toastr';
@@ -27,9 +27,21 @@ export interface MiManualData {
           </div>
 
           <div class="toolbar-right">
-            <button class="btn btn-outline" (click)="exportManuales()">
+            <button
+              class="btn btn-outline"
+              (click)="exportManuales()"
+              [disabled]="loading"
+            >
               <i class="icon-download"></i>
               Exportar Lista
+            </button>
+            <button
+              class="btn btn-primary"
+              (click)="reloadManuales()"
+              [disabled]="loading"
+            >
+              <i class="icon-refresh"></i>
+              Actualizar
             </button>
           </div>
         </div>
@@ -45,7 +57,10 @@ export interface MiManualData {
 
         <!-- Lista de Manuales -->
         <div *ngIf="!loading && manuales.length > 0" class="manuales-grid">
-          <div *ngFor="let manual of manuales" class="manual-card">
+          <div
+            *ngFor="let manual of manuales; trackBy: trackByManual"
+            class="manual-card"
+          >
             <div class="manual-icon">
               <i class="icon-document"></i>
             </div>
@@ -285,6 +300,9 @@ export interface MiManualData {
       .icon-shopping::before {
         content: '🛒';
       }
+      .icon-refresh::before {
+        content: '🔄';
+      }
 
       // Loading
       .loading-container {
@@ -380,7 +398,11 @@ export class MisManuales implements OnInit {
   manuales: MiManualData[] = [];
   loading = false;
 
-  constructor(private apiService: ApiService, private toastr: ToastrService) {}
+  constructor(
+    private apiService: ApiService,
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef // Inyectar ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadManuales();
@@ -388,18 +410,44 @@ export class MisManuales implements OnInit {
 
   loadManuales(): void {
     this.loading = true;
+    this.cdr.detectChanges(); // Forzar detección de cambios
+
     this.apiService.getManualesCliente().subscribe({
       next: (data) => {
-        console.log('Manuales del cliente:', data);
-        this.manuales = data;
+        console.log('Manuales del cliente - Tipo:', typeof data, 'Data:', data);
+
+        // Manejar diferentes estructuras de respuesta
+        if (Array.isArray(data)) {
+          this.manuales = data;
+        } else if (data && typeof data === 'object') {
+          // Si viene un objeto único, convertirlo a array
+          this.manuales = [data];
+        } else {
+          this.manuales = [];
+        }
+
         this.loading = false;
+        this.cdr.detectChanges(); // Forzar detección de cambios
+
+        console.log('Manuales procesados:', this.manuales);
+        console.log('Loading state:', this.loading);
       },
       error: (error) => {
         console.error('Error cargando manuales:', error);
         this.loading = false;
+        this.manuales = [];
+        this.cdr.detectChanges(); // Forzar detección de cambios
         this.toastr.error('Error al cargar los manuales', 'Error');
       },
     });
+  }
+
+  reloadManuales(): void {
+    this.loadManuales();
+  }
+
+  trackByManual(index: number, manual: MiManualData): string {
+    return manual.titulo + manual.urlDocumento;
   }
 
   openManual(url: string): void {
@@ -407,19 +455,15 @@ export class MisManuales implements OnInit {
   }
 
   downloadManual(url: string, titulo: string): void {
-    try {
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${titulo}.pdf`;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      this.toastr.success('Descarga iniciada');
-    } catch (error) {
-      console.error('Error descargando manual:', error);
-      this.toastr.error('Error al descargar el manual');
-    }
+    // Abrir en nueva pestaña y dar instrucciones al usuario
+    window.open(url, '_blank');
+    this.toastr.info(
+      'Manual abierto en nueva pestaña. Para descargarlo, usa Ctrl+S o click derecho → "Guardar como"',
+      'Descarga',
+      {
+        timeOut: 5000,
+      }
+    );
   }
 
   exportManuales(): void {
