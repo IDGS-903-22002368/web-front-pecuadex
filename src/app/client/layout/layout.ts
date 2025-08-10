@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Navbar } from '../../shared/components/navbar/navbar';
 import { CommonModule } from '@angular/common';
 import { MisCompras } from '../mis-compras/mis-compras';
+import { MisManuales } from '../manuales/manuales';
 
 interface NavItem {
   label: string;
@@ -17,7 +18,7 @@ interface NavItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [Navbar, CommonModule, MisCompras],
+  imports: [Navbar, CommonModule, MisCompras, MisManuales],
   template: `
     <div class="client-layout">
       <!-- Navbar -->
@@ -50,13 +51,7 @@ interface NavItem {
 
           <!-- Documentación Component -->
           <div *ngIf="activeComponent === 'documentacion'" class="fade-in">
-            <div class="documentation-placeholder">
-              <h2>Documentación</h2>
-              <p>
-                Aquí irán los manuales y documentación de los productos
-                comprados.
-              </p>
-            </div>
+            <app-mis-manuales></app-mis-manuales>
           </div>
 
           <!-- Perfil Component -->

@@ -1,0 +1,626 @@
+// Variables
+$primary-color: #2e7d32;
+$success-color: #28a745;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #17a2b8;
+$light-color: #f8f9fa;
+$dark-color: #343a40;
+$border-color: #e5e7eb;
+$text-muted: #6c757d;
+$border-radius: 0.375rem;
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+  0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+// Container principal
+.manuales-container {
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Header Card
+.header-card {
+  background: white;
+  border-radius: $border-radius;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: $shadow;
+  border: 1px solid $border-color;
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    .toolbar-left {
+      .page-title {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: $primary-color;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .icon-manual::before {
+          content: "📖";
+        }
+      }
+
+      .page-subtitle {
+        margin: 0;
+        color: $text-muted;
+        font-size: 0.9rem;
+      }
+    }
+
+    .toolbar-right {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+  }
+}
+
+// Botones
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: $border-radius;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &.btn-primary {
+    background-color: $primary-color;
+    color: white;
+    border-color: $primary-color;
+
+    &:hover:not(:disabled) {
+      background-color: darken($primary-color, 10%);
+      border-color: darken($primary-color, 10%);
+    }
+  }
+
+  &.btn-outline {
+    background-color: transparent;
+    color: $dark-color;
+    border-color: $border-color;
+
+    &:hover:not(:disabled) {
+      background-color: $light-color;
+    }
+  }
+
+  &.btn-danger {
+    background-color: $danger-color;
+    color: white;
+    border-color: $danger-color;
+
+    &:hover:not(:disabled) {
+      background-color: darken($danger-color, 10%);
+      border-color: darken($danger-color, 10%);
+    }
+  }
+
+  &.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: $border-radius;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: $light-color;
+  }
+}
+
+// Iconos (usando emojis como fallback)
+.icon-manual::before {
+  content: "📖";
+}
+.icon-download::before {
+  content: "⬇️";
+}
+.icon-add::before {
+  content: "➕";
+}
+.icon-search::before {
+  content: "🔍";
+}
+.icon-edit::before {
+  content: "✏️";
+}
+.icon-delete::before {
+  content: "🗑️";
+}
+.icon-close::before {
+  content: "❌";
+}
+.icon-manual-empty::before {
+  content: "📖";
+  opacity: 0.3;
+  font-size: 4rem;
+}
+.icon-external-link::before {
+  content: "🔗";
+}
+
+// Table Container
+.table-container {
+  background: white;
+  border-radius: $border-radius;
+  padding: 1.5rem;
+  box-shadow: $shadow;
+  border: 1px solid $border-color;
+
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    .table-title {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $primary-color;
+    }
+
+    .table-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+  }
+}
+
+// Search Box
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .icon-search {
+    position: absolute;
+    left: 0.75rem;
+    color: $text-muted;
+    pointer-events: none;
+  }
+
+  .search-input {
+    padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    font-size: 0.875rem;
+    min-width: 300px;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
+  }
+}
+
+// Loading
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+
+  .spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid $light-color;
+    border-top: 3px solid $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Table
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 1px solid $border-color;
+  }
+
+  th {
+    background-color: $light-color;
+    font-weight: 600;
+    color: $dark-color;
+    position: sticky;
+    top: 0;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: rgba($primary-color, 0.05);
+    }
+  }
+
+  .actions-column {
+    width: 120px;
+    text-align: center;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+}
+
+// ID Badge
+.id-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: $primary-color;
+  color: white;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+// Producto Info
+.producto-info {
+  .producto-nombre {
+    display: block;
+    font-weight: 500;
+    color: $dark-color;
+  }
+
+  .producto-id {
+    display: block;
+    color: $text-muted;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+}
+
+// Título Info
+.titulo-info {
+  .titulo-text {
+    font-weight: 500;
+    color: $dark-color;
+  }
+}
+
+// URL Info
+.url-info {
+  .url-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: $primary-color;
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .url-text {
+    display: block;
+    color: $text-muted;
+    font-size: 0.75rem;
+    word-break: break-all;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// No data
+.no-data {
+  padding: 3rem;
+  text-align: center;
+
+  .no-data-content {
+    max-width: 400px;
+    margin: 0 auto;
+
+    i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      display: block;
+      opacity: 0.3;
+    }
+
+    h3 {
+      margin: 0 0 1rem 0;
+      color: $dark-color;
+      font-size: 1.25rem;
+    }
+
+    p {
+      margin: 0 0 1.5rem 0;
+      color: $text-muted;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Pagination
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid $border-color;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .pagination-info {
+    color: $text-muted;
+    font-size: 0.875rem;
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    .items-per-page {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid $border-color;
+      border-radius: $border-radius;
+      font-size: 0.875rem;
+      background: white;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+      }
+    }
+
+    .page-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .page-info {
+        font-size: 0.875rem;
+        color: $text-muted;
+        white-space: nowrap;
+      }
+    }
+  }
+}
+
+// Modal
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-container {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-lg;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid $border-color;
+
+    h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $dark-color;
+    }
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    border-top: 1px solid $border-color;
+    background-color: $light-color;
+  }
+}
+
+// Form
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  font-weight: 500;
+  color: $dark-color;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  display: block;
+
+  &.required::after {
+    content: " *";
+    color: $danger-color;
+  }
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+
+  &.error {
+    border-color: $danger-color;
+    box-shadow: 0 0 0 3px rgba($danger-color, 0.1);
+  }
+}
+
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+.form-help {
+  font-size: 0.75rem;
+  color: $text-muted;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.error-message {
+  color: $danger-color;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .manuales-container {
+    padding: 0.5rem;
+  }
+
+  .header-card .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+
+    .toolbar-right {
+      justify-content: center;
+    }
+  }
+
+  .table-header {
+    flex-direction: column;
+    align-items: stretch;
+
+    .table-actions {
+      justify-content: center;
+    }
+  }
+
+  .search-input {
+    min-width: 200px;
+  }
+
+  .data-table {
+    font-size: 0.75rem;
+
+    th,
+    td {
+      padding: 0.5rem;
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .pagination-container {
+    flex-direction: column;
+    text-align: center;
+
+    .pagination-controls {
+      justify-content: center;
+    }
+  }
+
+  .modal-container {
+    margin: 0.5rem;
+    max-width: none;
+  }
+
+  .url-text {
+    max-width: 150px;
+  }
+}
