@@ -14,6 +14,7 @@ export interface CompraClienteData {
   fecha: Date;
   total: number;
   productos: ProductoCompraData[];
+  ventaId?: number; // Agregar ID de venta
 }
 
 export interface ProductoCompraData {
@@ -23,14 +24,18 @@ export interface ProductoCompraData {
   cantidad: number;
   precioUnitario: number;
   subtotal: number;
+  ventaId?: number; // Agregar ID de venta
 }
 
 export interface ComentarioData {
   id?: number;
+  ventaId: number;
   productoId: number;
   descripcion: string;
   calificacion: number;
   fecha?: Date;
+  nombreProducto?: string;
+  nombreCliente?: string;
 }
 
 @Component({
@@ -62,6 +67,7 @@ export class MisCompras implements OnInit {
   comentarioForm: FormGroup;
   submitted = false;
   selectedProducto: ProductoCompraData | null = null;
+  currentVentaId: number | null = null;
   isEditMode = false;
   comentarioToEdit: ComentarioData | null = null;
 
@@ -85,22 +91,24 @@ export class MisCompras implements OnInit {
 
   ngOnInit(): void {
     this.loadCompras();
-    this.loadComentarios();
+    this.loadMisComentarios();
   }
 
   loadCompras(): void {
     this.loading = true;
     this.apiService.getComprasCliente().subscribe({
       next: (data) => {
-        console.log('Datos de compras recibidos:', data); // <-- Agregar este log para debug
+        console.log('Datos de compras recibidos:', data);
 
+        // Mapear los datos usando los IDs de venta reales del backend
         this.compras = data.map((compra) => ({
           ...compra,
           fecha: new Date(compra.fecha),
-          // Asegurarse de que cada producto tenga su productoId
+          ventaId: compra.ventaId, // Usar el ID real de venta
           productos: compra.productos.map((producto: any) => ({
             ...producto,
-            productoId: producto.productoId || producto.id, // <-- Mapear el productoId
+            productoId: producto.productoId || producto.id,
+            ventaId: compra.ventaId, // Usar el ID real de venta
           })),
         }));
 
@@ -116,10 +124,14 @@ export class MisCompras implements OnInit {
     });
   }
 
-  loadComentarios(): void {
-    this.apiService.getComentarios().subscribe({
+  loadMisComentarios(): void {
+    this.apiService.getMisComentarios().subscribe({
       next: (data) => {
-        this.comentarios = data;
+        console.log('Comentarios del usuario:', data);
+        this.comentarios = data.map((comentario) => ({
+          ...comentario,
+          fecha: new Date(comentario.fecha),
+        }));
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -150,35 +162,10 @@ export class MisCompras implements OnInit {
       );
     }
 
-    // Aplicar ordenamiento
-    if (this.sortField) {
-      filtered.sort((a, b) => {
-        let aValue: any;
-        let bValue: any;
-
-        if (this.sortField === 'fecha') {
-          aValue = a.fecha.getTime();
-          bValue = b.fecha.getTime();
-        } else if (this.sortField === 'total') {
-          aValue = a.total;
-          bValue = b.total;
-        } else {
-          aValue = a[this.sortField as keyof CompraClienteData];
-          bValue = b[this.sortField as keyof CompraClienteData];
-        }
-
-        if (typeof aValue === 'string') aValue = aValue.toLowerCase();
-        if (typeof bValue === 'string') bValue = bValue.toLowerCase();
-
-        if (aValue === undefined && bValue === undefined) return 0;
-        if (aValue === undefined) return this.sortDirection === 'asc' ? 1 : -1;
-        if (bValue === undefined) return this.sortDirection === 'asc' ? -1 : 1;
-
-        if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
-        if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
+    // Aplicar ordenamiento por fecha (más recientes primero)
+    filtered.sort((a, b) => {
+      return b.fecha.getTime() - a.fecha.getTime();
+    });
 
     // Calcular paginación
     this.totalItems = filtered.length;
@@ -188,22 +175,6 @@ export class MisCompras implements OnInit {
     const endIndex = startIndex + this.itemsPerPage;
 
     this.filteredCompras = filtered.slice(startIndex, endIndex);
-  }
-
-  // Ordenamiento
-  sort(field: string): void {
-    if (this.sortField === field) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortField = field;
-      this.sortDirection = 'asc';
-    }
-    this.applyFiltersAndPagination();
-  }
-
-  getSortIcon(field: string): string {
-    if (this.sortField !== field) return 'sort';
-    return this.sortDirection === 'asc' ? 'sort-up' : 'sort-down';
   }
 
   // Paginación
@@ -228,13 +199,23 @@ export class MisCompras implements OnInit {
 
   // Comentarios
   openComentarioDialog(producto: ProductoCompraData): void {
+    console.log('Abriendo dialog para producto:', producto);
+
     this.selectedProducto = producto;
+    this.currentVentaId = producto.ventaId || null;
     this.isEditMode = false;
     this.comentarioToEdit = null;
 
-    // Verificar si ya existe un comentario para este producto
+    if (!this.currentVentaId) {
+      this.toastr.error('Error: No se pudo identificar la venta', 'Error');
+      return;
+    }
+
+    // Verificar si ya existe un comentario para este producto en esta venta
     const existingComentario = this.comentarios.find(
-      (c) => c.productoId === producto.id
+      (c) =>
+        c.productoId === producto.productoId &&
+        c.ventaId === this.currentVentaId
     );
 
     if (existingComentario) {
@@ -258,23 +239,21 @@ export class MisCompras implements OnInit {
   saveComentario(): void {
     this.submitted = true;
 
-    if (this.comentarioForm.valid && this.selectedProducto) {
+    if (
+      this.comentarioForm.valid &&
+      this.selectedProducto &&
+      this.currentVentaId
+    ) {
       const formData = this.comentarioForm.value;
 
-      // Usar productoId en lugar de id
-      const productoId =
-        this.selectedProducto.productoId || this.selectedProducto.id;
-
-      if (!productoId) {
-        this.toastr.error('Error: No se pudo identificar el producto', 'Error');
-        return;
-      }
-
       const comentarioData = {
-        productoId: productoId, // <-- Usar el productoId correcto
+        ventaId: this.currentVentaId,
+        productoId: this.selectedProducto.productoId,
         descripcion: formData.descripcion,
         calificacion: formData.calificacion,
       };
+
+      console.log('Enviando comentario:', comentarioData);
 
       if (this.isEditMode && this.comentarioToEdit) {
         // Actualizar comentario existente
@@ -282,40 +261,37 @@ export class MisCompras implements OnInit {
           .updateComentario(this.comentarioToEdit.id!, comentarioData)
           .subscribe({
             next: (updatedComentario) => {
-              const index = this.comentarios.findIndex(
-                (c) => c.id === this.comentarioToEdit!.id
-              );
-              if (index !== -1) {
-                this.comentarios[index] = {
-                  ...updatedComentario,
-                  fecha: new Date(updatedComentario.fecha),
-                };
-              }
+              console.log('Comentario actualizado:', updatedComentario);
+              this.loadMisComentarios(); // Recargar comentarios
               this.toastr.success('Comentario actualizado correctamente');
               this.hideDialog();
-              this.cdr.detectChanges();
             },
             error: (error) => {
               console.error('Error actualizando comentario:', error);
-              this.toastr.error('Error al actualizar comentario');
+              this.toastr.error(
+                error.error?.message || 'Error al actualizar comentario'
+              );
             },
           });
       } else {
         // Crear nuevo comentario
-        this.apiService.createComentarioCliente(comentarioData).subscribe({
+        this.apiService.createComentario(comentarioData).subscribe({
           next: (response) => {
-            // Recargar comentarios para obtener el nuevo
-            this.loadComentarios();
+            console.log('Comentario creado:', response);
+            this.loadMisComentarios(); // Recargar comentarios
             this.toastr.success('Comentario guardado correctamente');
             this.hideDialog();
-            this.cdr.detectChanges();
           },
           error: (error) => {
             console.error('Error creando comentario:', error);
-            this.toastr.error('Error al guardar comentario');
+            this.toastr.error(
+              error.error?.message || 'Error al guardar comentario'
+            );
           },
         });
       }
+    } else {
+      this.toastr.error('Por favor, complete todos los campos requeridos');
     }
   }
 
@@ -323,18 +299,26 @@ export class MisCompras implements OnInit {
     this.dialogVisible = false;
     this.submitted = false;
     this.selectedProducto = null;
+    this.currentVentaId = null;
     this.comentarioToEdit = null;
   }
 
   // Verificar si un producto ya tiene comentario
-  hasComentario(productoId: number): boolean {
-    if (!productoId) return false;
-    return this.comentarios.some((c) => c.productoId === productoId);
+  hasComentario(productoId: number, ventaId?: number): boolean {
+    if (!productoId || !ventaId) return false;
+    return this.comentarios.some(
+      (c) => c.productoId === productoId && c.ventaId === ventaId
+    );
   }
 
-  getComentario(productoId: number): ComentarioData | undefined {
-    if (!productoId) return undefined;
-    return this.comentarios.find((c) => c.productoId === productoId);
+  getComentario(
+    productoId: number,
+    ventaId?: number
+  ): ComentarioData | undefined {
+    if (!productoId || !ventaId) return undefined;
+    return this.comentarios.find(
+      (c) => c.productoId === productoId && c.ventaId === ventaId
+    );
   }
 
   // Utilidades

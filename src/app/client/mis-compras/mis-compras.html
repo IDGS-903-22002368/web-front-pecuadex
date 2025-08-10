@@ -54,6 +54,9 @@
           <div class="compra-date">
             <i class="icon-calendar"></i>
             <span class="date">{{ formatDate(compra.fecha) }}</span>
+            <span class="venta-id" *ngIf="compra.ventaId">
+              (Venta #{{ compra.ventaId }})
+            </span>
           </div>
           <div class="compra-total">
             <span class="total-label">Total:</span>
@@ -82,24 +85,24 @@
             <div class="producto-actions">
               <!-- Comentario existente -->
               <div
-                *ngIf="hasComentario(producto.productoId || producto.id!)"
+                *ngIf="hasComentario(producto.productoId, producto.ventaId)"
                 class="comentario-existente"
               >
                 <div class="rating-display">
                   <span
-                    *ngFor="let star of getStars(getComentario(producto.productoId || producto.id!)!.calificacion)"
+                    *ngFor="let star of getStars(getComentario(producto.productoId, producto.ventaId)!.calificacion)"
                     class="star filled"
                     >★</span
                   >
                   <span
-                    *ngFor="let star of getEmptyStars(getComentario(producto.productoId || producto.id!)!.calificacion)"
+                    *ngFor="let star of getEmptyStars(getComentario(producto.productoId, producto.ventaId)!.calificacion)"
                     class="star"
                     >☆</span
                   >
                 </div>
                 <p class="comentario-text">
-                  {{ getComentario(producto.productoId ||
-                  producto.id!)!.descripcion }}
+                  {{ getComentario(producto.productoId,
+                  producto.ventaId)!.descripcion }}
                 </p>
                 <button
                   class="btn-link edit-comment"
@@ -113,7 +116,7 @@
 
               <!-- Sin comentario -->
               <div
-                *ngIf="!hasComentario(producto.productoId || producto.id!)"
+                *ngIf="!hasComentario(producto.productoId, producto.ventaId)"
                 class="no-comentario"
               >
                 <p class="no-comment-text">¿Qué te pareció este producto?</p>
@@ -199,6 +202,7 @@
         <h4>{{ selectedProducto.nombre }}</h4>
         <p class="producto-subtitle">
           Comprado por {{ formatCurrency(selectedProducto.precioUnitario) }}
+          <span *ngIf="currentVentaId"> - Venta #{{ currentVentaId }}</span>
         </p>
       </div>
 
@@ -272,7 +276,12 @@
       <button type="button" class="btn btn-outline" (click)="hideDialog()">
         Cancelar
       </button>
-      <button type="button" class="btn btn-primary" (click)="saveComentario()">
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="saveComentario()"
+        [disabled]="submitted && comentarioForm.invalid"
+      >
         {{ isEditMode ? 'Actualizar' : 'Guardar' }} Comentario
       </button>
     </div>

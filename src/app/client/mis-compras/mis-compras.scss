@@ -722,3 +722,69 @@ $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
     min-width: 200px;
   }
 }
+
+.compra-header {
+  background: $light-color;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid $border-color;
+
+  .compra-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $text-muted;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+
+    .date {
+      font-weight: 500;
+      color: $dark-color;
+    }
+
+    .venta-id {
+      font-size: 0.8rem;
+      color: $primary-color;
+      background: rgba($primary-color, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-weight: 500;
+    }
+  }
+
+  .compra-total {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .total-label {
+      color: $text-muted;
+      font-size: 0.9rem;
+    }
+
+    .total-amount {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: $primary-color;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .compra-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    text-align: center;
+
+    .compra-date {
+      justify-content: center;
+
+      .venta-id {
+        font-size: 0.75rem;
+      }
+    }
+  }
+}

@@ -174,6 +174,16 @@ export class ApiService {
     );
   }
 
+  getComentariosByVenta(ventaId: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.baseUrl}/comentarios/ObtenerPorVenta/${ventaId}`
+    );
+  }
+
+  getMisComentarios(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/comentarios/MisComentarios`);
+  }
+
   createComentario(comentario: any): Observable<any> {
     return this.http.post<any>(
       `${this.baseUrl}/comentarios/AgregarComentario`,
