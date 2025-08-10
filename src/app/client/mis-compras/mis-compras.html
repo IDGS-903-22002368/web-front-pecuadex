@@ -82,23 +82,24 @@
             <div class="producto-actions">
               <!-- Comentario existente -->
               <div
-                *ngIf="hasComentario(producto.id!)"
+                *ngIf="hasComentario(producto.productoId || producto.id!)"
                 class="comentario-existente"
               >
                 <div class="rating-display">
                   <span
-                    *ngFor="let star of getStars(getComentario(producto.id!)!.calificacion)"
+                    *ngFor="let star of getStars(getComentario(producto.productoId || producto.id!)!.calificacion)"
                     class="star filled"
                     >★</span
                   >
                   <span
-                    *ngFor="let star of getEmptyStars(getComentario(producto.id!)!.calificacion)"
+                    *ngFor="let star of getEmptyStars(getComentario(producto.productoId || producto.id!)!.calificacion)"
                     class="star"
                     >☆</span
                   >
                 </div>
                 <p class="comentario-text">
-                  {{ getComentario(producto.id!)!.descripcion }}
+                  {{ getComentario(producto.productoId ||
+                  producto.id!)!.descripcion }}
                 </p>
                 <button
                   class="btn-link edit-comment"
@@ -111,7 +112,10 @@
               </div>
 
               <!-- Sin comentario -->
-              <div *ngIf="!hasComentario(producto.id!)" class="no-comentario">
+              <div
+                *ngIf="!hasComentario(producto.productoId || producto.id!)"
+                class="no-comentario"
+              >
                 <p class="no-comment-text">¿Qué te pareció este producto?</p>
                 <button
                   class="btn btn-primary btn-sm"

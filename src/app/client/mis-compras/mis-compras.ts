@@ -18,6 +18,7 @@ export interface CompraClienteData {
 
 export interface ProductoCompraData {
   id?: number;
+  productoId: number;
   nombre: string;
   cantidad: number;
   precioUnitario: number;
@@ -91,10 +92,18 @@ export class MisCompras implements OnInit {
     this.loading = true;
     this.apiService.getComprasCliente().subscribe({
       next: (data) => {
+        console.log('Datos de compras recibidos:', data); // <-- Agregar este log para debug
+
         this.compras = data.map((compra) => ({
           ...compra,
           fecha: new Date(compra.fecha),
+          // Asegurarse de que cada producto tenga su productoId
+          productos: compra.productos.map((producto: any) => ({
+            ...producto,
+            productoId: producto.productoId || producto.id, // <-- Mapear el productoId
+          })),
         }));
+
         this.applyFiltersAndPagination();
         this.loading = false;
         this.cdr.detectChanges();
@@ -251,8 +260,18 @@ export class MisCompras implements OnInit {
 
     if (this.comentarioForm.valid && this.selectedProducto) {
       const formData = this.comentarioForm.value;
+
+      // Usar productoId en lugar de id
+      const productoId =
+        this.selectedProducto.productoId || this.selectedProducto.id;
+
+      if (!productoId) {
+        this.toastr.error('Error: No se pudo identificar el producto', 'Error');
+        return;
+      }
+
       const comentarioData = {
-        productoId: this.selectedProducto.id!,
+        productoId: productoId, // <-- Usar el productoId correcto
         descripcion: formData.descripcion,
         calificacion: formData.calificacion,
       };
@@ -309,10 +328,12 @@ export class MisCompras implements OnInit {
 
   // Verificar si un producto ya tiene comentario
   hasComentario(productoId: number): boolean {
+    if (!productoId) return false;
     return this.comentarios.some((c) => c.productoId === productoId);
   }
 
   getComentario(productoId: number): ComentarioData | undefined {
+    if (!productoId) return undefined;
     return this.comentarios.find((c) => c.productoId === productoId);
   }
 
