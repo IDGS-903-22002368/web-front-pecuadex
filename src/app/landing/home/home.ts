@@ -32,6 +32,7 @@ import { RatingModule } from 'primeng/rating';
   styleUrls: ['./home.scss'],
 })
 export class HomeComponent implements OnInit {
+  openFaq: number | null = null;
   isScrolled = false;
   navbarOpen = false;
   showScrollTop = false;
@@ -104,6 +105,10 @@ export class HomeComponent implements OnInit {
 
     this.cargarTestimonios();
     this.startCounters();
+  }
+
+  toggleFaq(index: number): void {
+    this.openFaq = this.openFaq === index ? null : index;
   }
 
   // Método para cargar testimonios usando solo datos del API
