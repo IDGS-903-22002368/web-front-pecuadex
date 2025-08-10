@@ -1,0 +1,313 @@
+<div class="piezas-container">
+  <!-- Header -->
+  <div class="header-card">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h2 class="page-title">
+          <i class="icon-cog"></i>
+          <span>Gestión de Piezas</span>
+        </h2>
+      </div>
+
+      <div class="toolbar-right">
+        <button class="btn btn-success" (click)="openNew()">
+          <i class="icon-plus"></i>
+          Nueva Pieza
+        </button>
+
+        <button
+          class="btn btn-danger"
+          (click)="deleteSelectedPiezas()"
+          [disabled]="selectedPiezas.length === 0"
+        >
+          <i class="icon-trash"></i>
+          Eliminar Seleccionadas
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla Container -->
+  <div class="table-container">
+    <!-- Table Header Controls -->
+    <div class="table-header">
+      <h3 class="table-title">Listado de Piezas</h3>
+
+      <div class="table-actions">
+        <div class="search-box">
+          <i class="icon-search"></i>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            (input)="onSearch($event)"
+            class="search-input"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando piezas...</p>
+    </div>
+
+    <!-- Tabla -->
+    <div *ngIf="!loading" class="table-wrapper">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th class="checkbox-col">
+              <input
+                type="checkbox"
+                [checked]="isAllSelected()"
+                (change)="toggleSelectAll()"
+                class="checkbox"
+              />
+            </th>
+            <th class="sortable" (click)="sort('id')">
+              ID
+              <i class="icon-{{ getSortIcon('id') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('nombre')">
+              Nombre
+              <i class="icon-{{ getSortIcon('nombre') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('unidadMedida')">
+              Unidad de Medida
+              <i class="icon-{{ getSortIcon('unidadMedida') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('descripcion')">
+              Descripción
+              <i class="icon-{{ getSortIcon('descripcion') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('fechaRegistro')">
+              Fecha Registro
+              <i class="icon-{{ getSortIcon('fechaRegistro') }}"></i>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let pieza of filteredPiezas"
+            [class.selected]="isSelected(pieza)"
+          >
+            <td>
+              <input
+                type="checkbox"
+                [checked]="isSelected(pieza)"
+                (change)="toggleSelect(pieza)"
+                class="checkbox"
+              />
+            </td>
+            <td class="font-bold">{{ pieza.id }}</td>
+            <td class="pieza-name">{{ pieza.nombre }}</td>
+            <td>{{ pieza.unidadMedida }}</td>
+            <td class="description-col" [title]="pieza.descripcion">
+              {{ truncateText(pieza.descripcion, 60) }}
+            </td>
+            <td>{{ pieza.fechaRegistro | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button
+                  class="btn-icon btn-edit"
+                  (click)="editPieza(pieza)"
+                  title="Editar"
+                >
+                  <i class="icon-edit"></i>
+                </button>
+                <button
+                  class="btn-icon btn-delete"
+                  (click)="deletePieza(pieza)"
+                  title="Eliminar"
+                >
+                  <i class="icon-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredPiezas.length === 0" class="no-data">
+            <td colspan="7" class="text-center">No se encontraron piezas</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && totalItems > 0" class="pagination-container">
+      <div class="pagination-info">{{ getPaginationInfo() }}</div>
+
+      <div class="pagination-controls">
+        <select
+          class="items-per-page"
+          [value]="itemsPerPage"
+          (change)="changeItemsPerPage($event)"
+        >
+          <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+            {{ option }} por página
+          </option>
+        </select>
+
+        <div class="page-buttons">
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage <= 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            Anterior
+          </button>
+
+          <span class="page-info">
+            Página {{ currentPage }} de {{ totalPages }}
+          </span>
+
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage >= totalPages"
+            (click)="goToPage(currentPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Crear/Editar Pieza -->
+<div class="modal-overlay" *ngIf="dialogVisible" (click)="hideDialog()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditMode ? 'Editar Pieza' : 'Nueva Pieza' }}</h3>
+      <button class="btn-close" (click)="hideDialog()">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="piezaForm" class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombre" class="form-label required">Nombre</label>
+          <input
+            id="nombre"
+            type="text"
+            formControlName="nombre"
+            class="form-input"
+            [class.error]="submitted && nombreControl?.invalid"
+          />
+          <div
+            *ngIf="submitted && nombreControl?.invalid"
+            class="error-message"
+          >
+            <span *ngIf="nombreControl?.errors?.['required']"
+              >El nombre es requerido</span
+            >
+            <span *ngIf="nombreControl?.errors?.['minlength']"
+              >El nombre debe tener al menos 3 caracteres</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="unidadMedida" class="form-label required"
+            >Unidad de Medida</label
+          >
+          <input
+            id="unidadMedida"
+            type="text"
+            formControlName="unidadMedida"
+            class="form-input"
+            [class.error]="submitted && unidadMedidaControl?.invalid"
+          />
+          <div
+            *ngIf="submitted && unidadMedidaControl?.invalid"
+            class="error-message"
+          >
+            <span *ngIf="unidadMedidaControl?.errors?.['required']"
+              >La unidad de medida es requerida</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="descripcion" class="form-label required"
+            >Descripción</label
+          >
+          <textarea
+            id="descripcion"
+            formControlName="descripcion"
+            rows="3"
+            class="form-textarea"
+            [class.error]="submitted && descripcionControl?.invalid"
+          ></textarea>
+          <div
+            *ngIf="submitted && descripcionControl?.invalid"
+            class="error-message"
+          >
+            <span *ngIf="descripcionControl?.errors?.['required']"
+              >La descripción es requerida</span
+            >
+            <span *ngIf="descripcionControl?.errors?.['minlength']"
+              >La descripción debe tener al menos 10 caracteres</span
+            >
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" (click)="hideDialog()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-primary" (click)="savePieza()">
+        {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div
+  class="modal-overlay"
+  *ngIf="deleteDialogVisible"
+  (click)="deleteDialogVisible = false"
+>
+  <div class="modal-container small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Confirmar Eliminación</h3>
+      <button class="btn-close" (click)="deleteDialogVisible = false">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="confirmation-content">
+        <i class="icon-warning"></i>
+        <p>
+          ¿Está seguro de que desea eliminar la pieza
+          <strong>{{ piezaToDelete?.nombre }}</strong>?
+        </p>
+        <p class="text-muted">Esta acción no se puede deshacer.</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="deleteDialogVisible = false"
+      >
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

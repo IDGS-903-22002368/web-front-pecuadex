@@ -1,0 +1,310 @@
+<div class="proveedores-container">
+  <!-- Header -->
+  <div class="header-card">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h2 class="page-title">
+          <i class="icon-building"></i>
+          <span>Gestión de Proveedores</span>
+        </h2>
+      </div>
+
+      <div class="toolbar-right">
+        <button class="btn btn-success" (click)="openNew()">
+          <i class="icon-plus"></i>
+          Nuevo Proveedor
+        </button>
+
+        <button
+          class="btn btn-danger"
+          (click)="deleteSelectedProveedores()"
+          [disabled]="selectedProveedores.length === 0"
+        >
+          <i class="icon-trash"></i>
+          Eliminar Seleccionados
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla Container -->
+  <div class="table-container">
+    <!-- Table Header Controls -->
+    <div class="table-header">
+      <h3 class="table-title">Listado de Proveedores</h3>
+
+      <div class="table-actions">
+        <div class="search-box">
+          <i class="icon-search"></i>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            (input)="onSearch($event)"
+            class="search-input"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando proveedores...</p>
+    </div>
+
+    <!-- Tabla -->
+    <div *ngIf="!loading" class="table-wrapper">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th class="checkbox-col">
+              <input
+                type="checkbox"
+                [checked]="isAllSelected()"
+                (change)="toggleSelectAll()"
+                class="checkbox"
+              />
+            </th>
+            <th class="sortable" (click)="sort('id')">
+              ID
+              <i class="icon-{{ getSortIcon('id') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('nombreEmpresa')">
+              Empresa
+              <i class="icon-{{ getSortIcon('nombreEmpresa') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('contacto')">
+              Contacto
+              <i class="icon-{{ getSortIcon('contacto') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('telefono')">
+              Teléfono
+              <i class="icon-{{ getSortIcon('telefono') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('email')">
+              Email
+              <i class="icon-{{ getSortIcon('email') }}"></i>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let proveedor of filteredProveedores"
+            [class.selected]="isSelected(proveedor)"
+          >
+            <td>
+              <input
+                type="checkbox"
+                [checked]="isSelected(proveedor)"
+                (change)="toggleSelect(proveedor)"
+                class="checkbox"
+              />
+            </td>
+            <td class="font-bold">{{ proveedor.id }}</td>
+            <td>{{ proveedor.nombreEmpresa }}</td>
+            <td>{{ proveedor.contacto }}</td>
+            <td>{{ proveedor.telefono }}</td>
+            <td>{{ proveedor.email }}</td>
+            <td>
+              <div class="action-buttons">
+                <button
+                  class="btn-icon btn-edit"
+                  (click)="editProveedor(proveedor)"
+                  title="Editar"
+                >
+                  <i class="icon-edit"></i>
+                </button>
+                <button
+                  class="btn-icon btn-delete"
+                  (click)="deleteProveedor(proveedor)"
+                  title="Eliminar"
+                >
+                  <i class="icon-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredProveedores.length === 0" class="no-data">
+            <td colspan="7" class="text-center">No se encontraron proveedores</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && totalItems > 0" class="pagination-container">
+      <div class="pagination-info">{{ getPaginationInfo() }}</div>
+
+      <div class="pagination-controls">
+        <select
+          class="items-per-page"
+          [value]="itemsPerPage"
+          (change)="changeItemsPerPage($event)"
+        >
+          <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+            {{ option }} por página
+          </option>
+        </select>
+
+        <div class="page-buttons">
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage <= 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            Anterior
+          </button>
+
+          <span class="page-info">
+            Página {{ currentPage }} de {{ totalPages }}
+          </span>
+
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage >= totalPages"
+            (click)="goToPage(currentPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Crear/Editar Proveedor -->
+<div class="modal-overlay" *ngIf="dialogVisible" (click)="hideDialog()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditMode ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h3>
+      <button class="btn-close" (click)="hideDialog()">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="proveedorForm" class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombreEmpresa" class="form-label required">Nombre de Empresa</label>
+          <input
+            id="nombreEmpresa"
+            type="text"
+            formControlName="nombreEmpresa"
+            class="form-input"
+            [class.error]="submitted && nombreEmpresaControl?.invalid"
+            maxlength="100"
+          />
+          <div
+            *ngIf="submitted && nombreEmpresaControl?.invalid"
+            class="error-message"
+          >
+            <span *ngIf="nombreEmpresaControl?.errors?.['required']"
+              >El nombre de empresa es requerido</span
+            >
+            <span *ngIf="nombreEmpresaControl?.errors?.['minlength']"
+              >El nombre debe tener al menos 3 caracteres</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="contacto" class="form-label">Persona de Contacto</label>
+          <input
+            id="contacto"
+            type="text"
+            formControlName="contacto"
+            class="form-input"
+            maxlength="100"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="telefono" class="form-label">Teléfono</label>
+          <input
+            id="telefono"
+            type="text"
+            formControlName="telefono"
+            class="form-input"
+            maxlength="20"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email" class="form-label">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="form-input"
+            maxlength="100"
+          />
+          <div
+            *ngIf="submitted && emailControl?.invalid"
+            class="error-message"
+          >
+            <span *ngIf="emailControl?.errors?.['email']"
+              >Por favor ingrese un email válido</span
+            >
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" (click)="hideDialog()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-primary" (click)="saveProveedor()">
+        {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div
+  class="modal-overlay"
+  *ngIf="deleteDialogVisible"
+  (click)="deleteDialogVisible = false"
+>
+  <div class="modal-container small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Confirmar Eliminación</h3>
+      <button class="btn-close" (click)="deleteDialogVisible = false">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="confirmation-content">
+        <i class="icon-warning"></i>
+        <p>
+          ¿Está seguro de que desea eliminar el proveedor
+          <strong>{{ proveedorToDelete?.nombreEmpresa }}</strong>?
+        </p>
+        <p class="text-muted">Esta acción no se puede deshacer.</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="deleteDialogVisible = false"
+      >
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

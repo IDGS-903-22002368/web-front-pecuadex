@@ -2,6 +2,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Navbar } from '../../shared/components/navbar/navbar';
 import { CommonModule } from '@angular/common';
 import { Producto } from '../producto/producto';
+import { Pieza } from '../pieza/pieza';
+import { ProveedorComponent } from "../proveedor/proveedor";
+import { ComprasComponent } from "../compra/compra";
 
 interface NavItem {
   label: string;
@@ -17,7 +20,7 @@ interface NavItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [Navbar, CommonModule, Producto],
+  imports: [Navbar, CommonModule, Producto, Pieza, ProveedorComponent, ComprasComponent],
   template: `
     <div class="admin-layout">
       <!-- Navbar -->
@@ -45,16 +48,19 @@ interface NavItem {
           <div *ngIf="activeComponent === 'ventas'" class="fade-in"></div>
 
           <!-- Proveedores Component -->
-          <div *ngIf="activeComponent === 'proveedores'" class="fade-in"></div>
+          <div *ngIf="activeComponent === 'proveedores'" class="fade-in">
+            <app-proveedores></app-proveedores>
+          </div>
 
           <!-- Compras Component -->
-          <div *ngIf="activeComponent === 'compras'" class="fade-in"></div>
+          <div *ngIf="activeComponent === 'compras'" class="fade-in">
+            <app-compras></app-compras>
+          </div>
 
           <!-- Materias Primas Component -->
-          <div
-            *ngIf="activeComponent === 'materias-primas'"
-            class="fade-in"
-          ></div>
+          <div *ngIf="activeComponent === 'materias-primas'"class="fade-in">
+            <app-piezas></app-piezas>
+          </div>
 
           <!-- Productos Component -->
           <div *ngIf="activeComponent === 'productos'" class="fade-in">

@@ -1,0 +1,314 @@
+<div class="compras-container">
+  <!-- Header -->
+  <div class="header-card">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h2 class="page-title">
+          <i class="icon-shopping-cart"></i>
+          <span>Gestión de Compras</span>
+        </h2>
+      </div>
+
+      <div class="toolbar-right">
+        <button class="btn btn-success" (click)="openNew()">
+          <i class="icon-plus"></i>
+          Nueva Compra
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla Container -->
+  <div class="table-container">
+    <!-- Table Header Controls -->
+    <div class="table-header">
+      <h3 class="table-title">Listado de Compras</h3>
+
+      <div class="table-actions">
+        <div class="search-box">
+          <i class="icon-search"></i>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            (input)="onSearch($event)"
+            class="search-input"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando compras...</p>
+    </div>
+
+    <!-- Tabla -->
+    <div *ngIf="!loading" class="table-wrapper">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sort('id')">
+              ID
+              <i class="icon-{{ getSortIcon('id') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('fecha')">
+              Fecha
+              <i class="icon-{{ getSortIcon('fecha') }}"></i>
+            </th>
+            <th>Proveedor</th>
+            <th>Insumos</th>
+            <th class="sortable" (click)="sort('total')">
+              Total
+              <i class="icon-{{ getSortIcon('total') }}"></i>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let compra of filteredCompras">
+            <td class="font-bold">{{ compra.id }}</td>
+            <td>{{ compra.fecha | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ compra.proveedor?.nombreEmpresa }}</td>
+            <td>
+              <ul class="insumos-list">
+                <li *ngFor="let detalle of compra.detalles">
+                  {{ detalle.movimientosPieza?.pieza?.nombre }} - 
+                  {{ detalle.cantidad }} {{ detalle.movimientosPieza?.pieza?.unidadMedida }}
+                </li>
+              </ul>
+            </td>
+            <td>{{ getTotalCompra(compra) | currency }}</td>
+            <td>
+              <div class="action-buttons">
+                <button
+                  class="btn-icon btn-view"
+                  (click)="viewCompra(compra)"
+                  title="Ver Detalles"
+                >
+                  <i class="icon-eye"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredCompras.length === 0" class="no-data">
+            <td colspan="6" class="text-center">No se encontraron compras</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && totalItems > 0" class="pagination-container">
+      <div class="pagination-info">{{ getPaginationInfo() }}</div>
+
+      <div class="pagination-controls">
+        <select
+          class="items-per-page"
+          [value]="itemsPerPage"
+          (change)="changeItemsPerPage($event)"
+        >
+          <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+            {{ option }} por página
+          </option>
+        </select>
+
+        <div class="page-buttons">
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage <= 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            Anterior
+          </button>
+
+          <span class="page-info">
+            Página {{ currentPage }} de {{ totalPages }}
+          </span>
+
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage >= totalPages"
+            (click)="goToPage(currentPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Agregar/Editar -->
+<div
+  class="modal-overlay"
+  *ngIf="dialogVisible"
+  (click)="hideDialog()"
+>
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditMode ? 'Editar Compra' : 'Nueva Compra' }}</h3>
+      <button class="btn-close" (click)="hideDialog()">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="compraForm" (ngSubmit)="saveCompra()">
+      <div class="modal-body">
+        
+        <!-- Datos principales -->
+        <table class="table">
+          <tbody>
+            <tr>
+              <th>Fecha:</th>
+              <td>
+                <input type="date" formControlName="fecha" class="form-control" />
+              </td>
+            </tr>
+            <tr>
+              <th>Proveedor:</th>
+              <td>
+                <select formControlName="proveedorId" class="form-control">
+                  <option [ngValue]="null">Seleccione proveedor</option>
+                  <option *ngFor="let p of proveedores" [value]="p.id">
+                    {{ p.nombreEmpresa }}
+                  </option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Tabla de detalles -->
+        <h4>Detalles de Compra</h4>
+        <table class="table table-bordered" formArrayName="detalles">
+          <thead>
+            <tr>
+              <th>Pieza</th>
+              <th>Presentación</th>
+              <th>Cantidad total de unidades</th>
+              <th>Precio Unitario</th>
+              <th>Total</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let detalle of detalles.controls; let i = index" [formGroupName]="i">
+              <td>
+                <select formControlName="piezaId" class="form-control" (change)="calcularTotalDetalle(i)">
+                  <option [ngValue]="null">Seleccione</option>
+                  <option *ngFor="let pieza of piezas" [value]="pieza.id">
+                    {{ pieza.nombre }}
+                  </option>
+                </select>
+              </td>
+              <td>
+                <input type="text" formControlName="presentacion" class="form-control" />
+              </td>
+              <td>
+                <input type="number" formControlName="cantidad" class="form-control" (input)="calcularTotalDetalle(i)" />
+              </td>
+              <td>
+                <input type="number" formControlName="precioUnitario" class="form-control" (input)="calcularTotalDetalle(i)" />
+              </td>
+              <td>
+                <input type="number" formControlName="precioTotal" class="form-control" readonly />
+              </td>
+              <td>
+                <button type="button" class="btn btn-danger btn-sm" (click)="removeDetalle(i)" *ngIf="detalles.length > 1">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Botón para agregar más filas -->
+        <button type="button" class="btn btn-outline-dark" (click)="addDetalle()">
+          Agregar Insumo
+        </button>
+
+        <div class="mt-3 text-end">
+          <strong>Total Compra: {{ calcularTotalCompra() | currency }}</strong>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="hideDialog()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-success" [disabled]="compraForm.invalid">
+          Guardar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<!-- Modal de Visualización -->
+<div
+  class="modal-overlay"
+  *ngIf="viewDialogVisible"
+  (click)="viewDialogVisible = false"
+>
+  <div class="modal-container large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Detalles de Compra #{{ selectedCompra?.id }}</h3>
+      <button class="btn-close" (click)="viewDialogVisible = false">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="compra-info">
+        <div class="info-row">
+          <span class="info-label">Fecha:</span>
+          <span class="info-value">{{ selectedCompra?.fecha | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Proveedor:</span>
+          <span class="info-value">{{ selectedCompra?.proveedor?.nombreEmpresa }}</span>
+        </div>
+      </div>
+
+      <div class="details-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Insumo</th>
+              <th>Presentación</th>
+              <th>Cantidad</th>
+              <th>Precio Unitario</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let detalle of selectedCompra?.detalles">
+              <td>{{ detalle.movimientosPieza?.pieza?.nombre }}</td>
+              <td>{{ detalle.presentacion }}</td>
+              <td>{{ detalle.cantidad }} {{ detalle.movimientosPieza?.pieza?.unidadMedida }}</td>
+              <td>{{ (detalle.precioTotal / detalle.cantidad) | currency }}</td>
+              <td>{{ detalle.precioTotal | currency }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="total-label">Total Compra:</td>
+              <td class="total-value">{{ getTotalCompra(selectedCompra!) | currency }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" (click)="viewDialogVisible = false">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
