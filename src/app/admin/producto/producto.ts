@@ -64,7 +64,7 @@ export class Producto implements OnInit {
       id: [null],
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       descripcion: ['', [Validators.required, Validators.minLength(10)]],
-      precioSugerido: [0, [Validators.required, Validators.min(0.01)]],
+      precioSugerido: [0.0, [Validators.required, Validators.min(0.01)]],
       imagen: ['', Validators.required],
     });
   }
@@ -274,27 +274,16 @@ export class Producto implements OnInit {
 
 
   saveProduct(): void {
-    this.submitted = true;
+  this.submitted = true;
 
     if (this.productoForm.valid) {
-      const formData: any = {
-        Nombre: this.productoForm.value.nombre,
-        Descripcion: this.productoForm.value.descripcion,
-        PrecioSugerido: parseFloat(this.productoForm.value.precioSugerido),
-        Imagen: this.productoForm.value.imagen
-      };
+      const formData = this.productoForm.value;
 
-      if (this.isEditMode && this.productoForm.value.id) {
-        formData.Id = this.productoForm.value.id;
-      }
-
-      console.log('Datos a enviar:', JSON.stringify(formData, null, 2));
-
-      if (this.isEditMode && formData.Id) {
-
-        this.apiService.updateProducto(formData.Id, formData).subscribe({
+      if (formData.id) {
+        // Actualizar producto existente
+        this.apiService.updateProducto(formData.id, formData).subscribe({
           next: (updatedProduct) => {
-            const index = this.productos.findIndex((p) => p.id === formData.Id);
+            const index = this.productos.findIndex((p) => p.id === formData.id);
             if (index !== -1) {
               this.productos[index] = {
                 ...updatedProduct,
@@ -314,6 +303,7 @@ export class Producto implements OnInit {
           },
         });
       } else {
+        // Crear nuevo producto
         this.apiService.createProducto(formData).subscribe({
           next: (newProduct) => {
             this.productos.push({

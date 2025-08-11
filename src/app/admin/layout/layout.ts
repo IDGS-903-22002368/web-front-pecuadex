@@ -5,7 +5,6 @@ import { Producto } from '../producto/producto';
 import { Pieza } from '../pieza/pieza';
 import { ProveedorComponent } from "../proveedor/proveedor";
 import { ComprasComponent } from "../compra/compra";
-import { VentasComponent } from '../venta/venta';
 
 interface NavItem {
   label: string;
@@ -21,7 +20,7 @@ interface NavItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [Navbar, CommonModule, Producto, Pieza, ProveedorComponent, ComprasComponent, VentasComponent],
+  imports: [Navbar, CommonModule, Producto, Pieza, ProveedorComponent, ComprasComponent],
   template: `
     <div class="admin-layout">
       <!-- Navbar -->
@@ -68,6 +67,11 @@ interface NavItem {
           <!-- Productos Component -->
           <div *ngIf="activeComponent === 'productos'" class="fade-in">
             <app-productos></app-productos>
+          </div>
+
+          <!-- ComponentesProducto -->
+          <div *ngIf="activeComponent === 'componentes-producto'" class="fade-in">
+            <app-componentes-producto></app-componentes-producto>
           </div>
 
           <!-- Perfil Component -->
@@ -168,6 +172,11 @@ export class Layout implements OnInit, OnDestroy {
           label: 'Productos',
           icon: 'fas fa-box-open',
           component: 'productos',
+        },
+        {
+          label: 'Componentes Receta',
+          icon: 'fas fa-box-open',
+          component: 'componentes-producto',
         },
       ],
     },

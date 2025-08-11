@@ -1,0 +1,10 @@
+export interface ComponentesProducto {
+  id?: number; // opcional
+  productoId: number;
+  piezaId: number;
+  cantidadRequerida: number;
+
+  // propiedades opcionales devueltas por el backend (Include)
+  producto?: { nombre: string };
+  pieza?: { nombre: string };
+}
