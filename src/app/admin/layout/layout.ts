@@ -3,9 +3,9 @@ import { Navbar } from '../../shared/components/navbar/navbar';
 import { CommonModule } from '@angular/common';
 import { Producto } from '../producto/producto';
 import { Pieza } from '../pieza/pieza';
-import { ProveedorComponent } from "../proveedor/proveedor";
-import { ComprasComponent } from "../compra/compra";
-import { VentasComponent } from "../venta/venta";
+import { ProveedorComponent } from '../proveedor/proveedor';
+import { ComprasComponent } from '../compra/compra';
+import { VentasComponent } from '../venta/venta';
 import { ComponentesProducto } from '../componentes-producto/componentes-producto';
 
 interface NavItem {
@@ -22,7 +22,16 @@ interface NavItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [Navbar, CommonModule, Producto, Pieza, ProveedorComponent, ComprasComponent, VentasComponent, ComponentesProducto],
+  imports: [
+    Navbar,
+    CommonModule,
+    Producto,
+    Pieza,
+    ProveedorComponent,
+    ComprasComponent,
+    VentasComponent,
+    ComponentesProducto,
+  ],
   template: `
     <div class="admin-layout">
       <!-- Navbar -->
@@ -62,7 +71,7 @@ interface NavItem {
           </div>
 
           <!-- Materias Primas Component -->
-          <div *ngIf="activeComponent === 'materias-primas'"class="fade-in">
+          <div *ngIf="activeComponent === 'materias-primas'" class="fade-in">
             <app-piezas></app-piezas>
           </div>
 
@@ -72,7 +81,10 @@ interface NavItem {
           </div>
 
           <!-- ComponentesProducto -->
-          <div *ngIf="activeComponent === 'componentes-producto'" class="fade-in">
+          <div
+            *ngIf="activeComponent === 'componentes-producto'"
+            class="fade-in"
+          >
             <app-componentes-producto></app-componentes-producto>
           </div>
 

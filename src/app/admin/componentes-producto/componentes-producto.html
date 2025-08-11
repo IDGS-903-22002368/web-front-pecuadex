@@ -94,7 +94,9 @@
           </tr>
 
           <tr *ngIf="filteredComponentes.length === 0" class="no-data">
-            <td colspan="5" class="text-center">No se encontraron componentes</td>
+            <td colspan="5" class="text-center">
+              No se encontraron componentes
+            </td>
           </tr>
         </tbody>
       </table>
@@ -142,7 +144,11 @@
 </div>
 
 <!-- Modal para Crear/Editar -->
-<div class="modal-overlay" *ngIf="dialogVisible" (click)="dialogVisible = false">
+<div
+  class="modal-overlay"
+  *ngIf="dialogVisible"
+  (click)="dialogVisible = false"
+>
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3>{{ isEditMode ? 'Editar Componente' : 'Nuevo Componente' }}</h3>
@@ -204,7 +210,11 @@
     </form>
 
     <div class="modal-footer">
-      <button type="button" class="btn btn-outline" (click)="dialogVisible = false">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="dialogVisible = false"
+      >
         Cancelar
       </button>
       <button type="button" class="btn btn-primary" (click)="saveComponente()">
@@ -215,7 +225,11 @@
 </div>
 
 <!-- Modal de Confirmación de Eliminación -->
-<div class="modal-overlay" *ngIf="deleteDialogVisible" (click)="deleteDialogVisible = false">
+<div
+  class="modal-overlay"
+  *ngIf="deleteDialogVisible"
+  (click)="deleteDialogVisible = false"
+>
   <div class="modal-container small" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3>Confirmar Eliminación</h3>
@@ -227,15 +241,17 @@
     <div class="modal-body">
       <div class="confirmation-content">
         <i class="icon-warning"></i>
-        <p>
-          ¿Está seguro de que desea eliminar este componente?
-        </p>
+        <p>¿Está seguro de que desea eliminar este componente?</p>
         <p class="text-muted">Esta acción no se puede deshacer.</p>
       </div>
     </div>
 
     <div class="modal-footer">
-      <button type="button" class="btn btn-outline" (click)="deleteDialogVisible = false">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="deleteDialogVisible = false"
+      >
         Cancelar
       </button>
       <button type="button" class="btn btn-danger" (click)="confirmDelete()">
