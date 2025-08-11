@@ -3,6 +3,7 @@ import { Navbar } from '../../shared/components/navbar/navbar';
 import { CommonModule } from '@angular/common';
 import { MisCompras } from '../mis-compras/mis-compras';
 import { MisManuales } from '../manuales/manuales';
+import { ClientDashboardComponent } from '../dashboard/dashboard';
 
 interface NavItem {
   label: string;
@@ -18,7 +19,13 @@ interface NavItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [Navbar, CommonModule, MisCompras, MisManuales],
+  imports: [
+    Navbar,
+    CommonModule,
+    MisCompras,
+    MisManuales,
+    ClientDashboardComponent,
+  ],
   template: `
     <div class="client-layout">
       <!-- Navbar -->
@@ -35,13 +42,7 @@ interface NavItem {
         <div class="container-fluid py-4">
           <!-- Dashboard Component -->
           <div *ngIf="activeComponent === 'dashboard'" class="fade-in">
-            <div class="dashboard-placeholder">
-              <h2>Dashboard del Cliente</h2>
-              <p>
-                Aquí irá el dashboard con estadísticas de compras, productos
-                favoritos, etc.
-              </p>
-            </div>
+            <app-client-dashboard></app-client-dashboard>
           </div>
 
           <!-- Mis Compras Component -->
