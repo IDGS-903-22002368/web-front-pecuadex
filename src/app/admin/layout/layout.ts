@@ -5,6 +5,8 @@ import { Producto } from '../producto/producto';
 import { Pieza } from '../pieza/pieza';
 import { ProveedorComponent } from "../proveedor/proveedor";
 import { ComprasComponent } from "../compra/compra";
+import { VentasComponent } from "../venta/venta";
+import { ComponentesProducto } from '../componentes-producto/componentes-producto';
 
 interface NavItem {
   label: string;
@@ -20,7 +22,7 @@ interface NavItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [Navbar, CommonModule, Producto, Pieza, ProveedorComponent, ComprasComponent],
+  imports: [Navbar, CommonModule, Producto, Pieza, ProveedorComponent, ComprasComponent, VentasComponent, ComponentesProducto],
   template: `
     <div class="admin-layout">
       <!-- Navbar -->
