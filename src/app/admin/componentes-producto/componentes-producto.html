@@ -1,0 +1,246 @@
+<div class="componentes-container">
+  <!-- Header -->
+  <div class="header-card">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h2 class="page-title">
+          <i class="icon-cog"></i>
+          <span>Gestión de Componentes de Producto</span>
+        </h2>
+      </div>
+
+      <div class="toolbar-right">
+        <button class="btn btn-success" (click)="openNew()">
+          <i class="icon-plus"></i>
+          Nuevo Componente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla Container -->
+  <div class="table-container">
+    <!-- Table Header Controls -->
+    <div class="table-header">
+      <h3 class="table-title">Listado de Componentes</h3>
+
+      <div class="table-actions">
+        <div class="search-box">
+          <i class="icon-search"></i>
+          <input
+            type="text"
+            placeholder="Buscar por producto o pieza..."
+            (input)="onSearch($event)"
+            class="search-input"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando componentes...</p>
+    </div>
+
+    <!-- Tabla -->
+    <div *ngIf="!loading" class="table-wrapper">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sort('id')">
+              ID
+              <i class="icon-{{ getSortIcon('id') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('producto')">
+              Producto
+              <i class="icon-{{ getSortIcon('producto') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('pieza')">
+              Pieza
+              <i class="icon-{{ getSortIcon('pieza') }}"></i>
+            </th>
+            <th class="sortable" (click)="sort('cantidadRequerida')">
+              Cantidad Requerida
+              <i class="icon-{{ getSortIcon('cantidadRequerida') }}"></i>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of filteredComponentes">
+            <td>{{ c.id }}</td>
+            <td>{{ c.producto?.nombre }}</td>
+            <td>{{ c.pieza?.nombre }}</td>
+            <td>{{ c.cantidadRequerida }}</td>
+            <td>
+              <div class="action-buttons">
+                <button
+                  class="btn-icon btn-edit"
+                  (click)="editComponente(c)"
+                  title="Editar"
+                >
+                  <i class="icon-edit"></i>
+                </button>
+                <button
+                  class="btn-icon btn-delete"
+                  (click)="deleteComponente(c)"
+                  title="Eliminar"
+                >
+                  <i class="icon-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredComponentes.length === 0" class="no-data">
+            <td colspan="5" class="text-center">No se encontraron componentes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && totalItems > 0" class="pagination-container">
+      <div class="pagination-info">{{ getPaginationInfo() }}</div>
+
+      <div class="pagination-controls">
+        <select
+          class="items-per-page"
+          [value]="itemsPerPage"
+          (change)="changeItemsPerPage($event)"
+        >
+          <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+            {{ option }} por página
+          </option>
+        </select>
+
+        <div class="page-buttons">
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage <= 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            Anterior
+          </button>
+
+          <span class="page-info">
+            Página {{ currentPage }} de {{ totalPages }}
+          </span>
+
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage >= totalPages"
+            (click)="goToPage(currentPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Crear/Editar -->
+<div class="modal-overlay" *ngIf="dialogVisible" (click)="dialogVisible = false">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditMode ? 'Editar Componente' : 'Nuevo Componente' }}</h3>
+      <button class="btn-close" (click)="dialogVisible = false">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="componenteForm" class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="productoId" class="form-label required">Producto</label>
+          <select
+            id="productoId"
+            formControlName="productoId"
+            class="form-select"
+            [class.error]="submitted && componenteForm.get('productoId')?.invalid"
+          >
+            <option value="">-- Seleccione un producto --</option>
+            <option *ngFor="let p of productos" [value]="p.id">
+              {{ p.nombre }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="piezaId" class="form-label required">Pieza</label>
+          <select
+            id="piezaId"
+            formControlName="piezaId"
+            class="form-select"
+            [class.error]="submitted && componenteForm.get('piezaId')?.invalid"
+          >
+            <option value="">-- Seleccione una pieza --</option>
+            <option *ngFor="let p of piezas" [value]="p.id">
+              {{ p.nombre }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cantidadRequerida" class="form-label required">
+            Cantidad Requerida
+          </label>
+          <input
+            id="cantidadRequerida"
+            type="number"
+            formControlName="cantidadRequerida"
+            class="form-input"
+            min="1"
+            [class.error]="submitted && componenteForm.get('cantidadRequerida')?.invalid"
+          />
+        </div>
+      </div>
+    </form>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" (click)="dialogVisible = false">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-primary" (click)="saveComponente()">
+        {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal-overlay" *ngIf="deleteDialogVisible" (click)="deleteDialogVisible = false">
+  <div class="modal-container small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Confirmar Eliminación</h3>
+      <button class="btn-close" (click)="deleteDialogVisible = false">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="confirmation-content">
+        <i class="icon-warning"></i>
+        <p>
+          ¿Está seguro de que desea eliminar este componente?
+        </p>
+        <p class="text-muted">Esta acción no se puede deshacer.</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" (click)="deleteDialogVisible = false">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

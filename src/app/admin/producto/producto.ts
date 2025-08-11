@@ -64,7 +64,7 @@ export class Producto implements OnInit {
       id: [null],
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       descripcion: ['', [Validators.required, Validators.minLength(10)]],
-      precioSugerido: [0, [Validators.required, Validators.min(0.01)]],
+      precioSugerido: [0.0, [Validators.required, Validators.min(0.01)]],
       imagen: ['', Validators.required],
     });
   }
@@ -272,8 +272,9 @@ export class Producto implements OnInit {
       });
   }
 
+
   saveProduct(): void {
-    this.submitted = true;
+  this.submitted = true;
 
     if (this.productoForm.valid) {
       const formData = this.productoForm.value;
