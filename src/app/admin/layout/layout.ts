@@ -5,6 +5,7 @@ import { Producto } from '../producto/producto';
 import { Pieza } from '../pieza/pieza';
 import { ProveedorComponent } from "../proveedor/proveedor";
 import { ComprasComponent } from "../compra/compra";
+import { VentasComponent } from '../venta/venta';
 
 interface NavItem {
   label: string;
@@ -20,7 +21,7 @@ interface NavItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [Navbar, CommonModule, Producto, Pieza, ProveedorComponent, ComprasComponent],
+  imports: [Navbar, CommonModule, Producto, Pieza, ProveedorComponent, ComprasComponent, VentasComponent],
   template: `
     <div class="admin-layout">
       <!-- Navbar -->
@@ -45,7 +46,9 @@ interface NavItem {
           ></div>
 
           <!-- Ventas Component -->
-          <div *ngIf="activeComponent === 'ventas'" class="fade-in"></div>
+          <div *ngIf="activeComponent === 'ventas'" class="fade-in">
+            <app-ventas></app-ventas>
+          </div>
 
           <!-- Proveedores Component -->
           <div *ngIf="activeComponent === 'proveedores'" class="fade-in">

@@ -9,7 +9,6 @@ import { RouterModule } from '@angular/router';
 import { Layout } from './layout/layout';
 import { Navbar } from '../shared/components/navbar/navbar';
 import { Producto } from './producto/producto';
-import { Pieza } from './pieza/pieza';
 
 const routes = [
   {
@@ -19,8 +18,7 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [
-  ],
+  declarations: [],
   imports: [
     CommonModule,
     AdminRoutingModule,
