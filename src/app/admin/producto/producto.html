@@ -369,6 +369,35 @@
           </div>
         </div>
       </div>
+      <div class="form-row">
+  <div class="form-group">
+    <label for="tituloManual" class="form-label">Título del Manual</label>
+    <input
+      id="tituloManual"
+      type="text"
+      formControlName="tituloManual"
+      class="form-input"
+      placeholder="Ej: Manual de uso"
+    />
+
+    <div class="file-upload-container">
+      <label class="file-upload-label">
+        <input
+          type="file"
+          accept=".pdf,.doc,.docx"
+          (change)="onManualUpload($event)"
+          class="file-input-hidden"
+        />
+        <span class="file-upload-button">
+          <i class="icon-upload"></i>
+          Seleccionar manual
+        </span>
+      </label>
+    </div>
+  </div>
+</div>
+
+
     </form>
 
     <div class="modal-footer">

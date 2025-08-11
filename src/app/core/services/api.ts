@@ -80,25 +80,25 @@ export class ApiService {
     return this.http.get<any[]>(`${this.baseUrl}/producto/ListaProductos`);
   }
 
-  createProducto(producto: any): Observable<any> {
+  createProductoConManual(producto: any): Observable<any> {
     return this.http.post<any>(
-      `${this.baseUrl}/producto/AgregarProducto`,
+      `${this.baseUrl}/producto/AgregarProductoConManual`,
       producto
     );
   }
 
-  updateProducto(id: number, producto: any): Observable<any> {
-    return this.http.put<any>(
-      `${this.baseUrl}/producto/ModificarProducto/${id}`,
-      producto
-    );
-  }
+  updateProductoConManual(id: number, formData: FormData): Observable<any> {
+  return this.http.put<any>(
+    `${this.baseUrl}/producto/ModificarProductoConManual/${id}`,
+    formData
+  );
+}
 
-  deleteProducto(id: number): Observable<any> {
-    return this.http.delete<any>(
-      `${this.baseUrl}/producto/EliminarProducto/${id}`
-    );
-  }
+  deleteProductoConManual(id: number): Observable<any> {
+  return this.http.delete<any>(
+    `${this.baseUrl}/producto/EliminarProductoConManual/${id}`
+  );
+}
 
   // ========== PROVEEDORES ==========
   getProveedores(): Observable<any[]> {
@@ -215,6 +215,10 @@ export class ApiService {
       manual
     );
   }
+  uploadManual(formData: FormData) {
+  return this.http.post<any>(`${this.baseUrl}/manual/SubirManual`, formData);
+  }
+
 
   deleteManual(id: number): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/manual/EliminarManual/${id}`);

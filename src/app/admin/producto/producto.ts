@@ -66,6 +66,7 @@ export class Producto implements OnInit {
       descripcion: ['', [Validators.required, Validators.minLength(10)]],
       precioSugerido: [0.0, [Validators.required, Validators.min(0.01)]],
       imagen: ['', Validators.required],
+      tituloManual: [''], // Agrega este campo
     });
   }
 
@@ -228,73 +229,80 @@ export class Producto implements OnInit {
     this.deleteDialogVisible = true;
   }
 
-  confirmDelete(): void {
-    if (this.productToDelete) {
-      this.apiService.deleteProducto(this.productToDelete.id!).subscribe({
-        next: () => {
-          this.productos = this.productos.filter(
-            (val) => val.id !== this.productToDelete!.id
-          );
-          this.applyFiltersAndPagination();
-          this.deleteDialogVisible = false;
-          this.productToDelete = null;
-          this.toastr.success('Producto eliminado correctamente');
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error eliminando producto:', error);
-          this.toastr.error('Error al eliminar producto');
-        },
-      });
-    }
-  }
-
-  deleteSelectedProducts(): void {
-    if (this.selectedProductos.length === 0) return;
-
-    const deletePromises = this.selectedProductos.map((producto) =>
-      this.apiService.deleteProducto(producto.id!).toPromise()
-    );
-
-    Promise.all(deletePromises)
-      .then(() => {
+confirmDelete(): void {
+  if (this.productToDelete) {
+    this.apiService.deleteProductoConManual(this.productToDelete.id!).subscribe({
+      next: () => {
         this.productos = this.productos.filter(
-          (val) => !this.selectedProductos.includes(val)
+          (val) => val.id !== this.productToDelete!.id
         );
-        this.selectedProductos = [];
         this.applyFiltersAndPagination();
-        this.toastr.success('Productos eliminados correctamente');
+        this.deleteDialogVisible = false;
+        this.productToDelete = null;
+        this.toastr.success('Producto y manual asociado eliminados correctamente');
         this.cdr.detectChanges();
-      })
-      .catch((error) => {
-        console.error('Error eliminando productos:', error);
-        this.toastr.error('Error al eliminar productos');
-      });
+      },
+      error: (error) => {
+        console.error('Error eliminando producto:', error);
+        this.toastr.error('Error al eliminar producto');
+      },
+    });
   }
+}
+
+deleteSelectedProducts(): void {
+  if (this.selectedProductos.length === 0) return;
+
+  const deletePromises = this.selectedProductos.map((producto) =>
+    this.apiService.deleteProductoConManual(producto.id!).toPromise()
+  );
+
+  Promise.all(deletePromises)
+    .then(() => {
+      this.productos = this.productos.filter(
+        (val) => !this.selectedProductos.some(p => p.id === val.id)
+      );
+      this.selectedProductos = [];
+      this.applyFiltersAndPagination();
+      this.toastr.success('Productos y manuales asociados eliminados correctamente');
+      this.cdr.detectChanges();
+    })
+    .catch((error) => {
+      console.error('Error eliminando productos:', error);
+      this.toastr.error('Error al eliminar productos');
+    });
+}
+
+  manualFile: File | null = null;
+
+onManualUpload(event: any): void {
+  const file = event.target.files[0];
+  if (file) {
+    this.manualFile = file;
+    this.toastr.info(`Manual seleccionado: ${file.name}`, 'Información');
+  }
+}
 
 
   saveProduct(): void {
   this.submitted = true;
 
   if (this.productoForm.valid) {
-    const formData: any = {
-      Nombre: this.productoForm.value.nombre,
-      Descripcion: this.productoForm.value.descripcion,
-      PrecioSugerido: parseFloat(this.productoForm.value.precioSugerido),
-      Imagen: this.productoForm.value.imagen
-    };
+    const formData = new FormData();
+    formData.append('nombre', this.productoForm.value.nombre);
+    formData.append('descripcion', this.productoForm.value.descripcion);
+    formData.append('precioSugerido', this.productoForm.value.precioSugerido);
+    formData.append('imagen', this.productoForm.value.imagen);
 
-    if (this.isEditMode && this.productoForm.value.id) {
-      formData.Id = this.productoForm.value.id;
+    if (this.productoForm.value.tituloManual && this.manualFile) {
+      formData.append('tituloManual', this.productoForm.value.tituloManual);
+      formData.append('archivoManual', this.manualFile);
     }
 
-    console.log('Datos a enviar:', JSON.stringify(formData, null, 2));
-
-    if (this.isEditMode && formData.Id) {
-
-      this.apiService.updateProducto(formData.Id, formData).subscribe({
+    if (this.isEditMode && this.productoForm.value.id) {
+      this.apiService.updateProductoConManual(this.productoForm.value.id, formData).subscribe({
         next: (updatedProduct) => {
-          const index = this.productos.findIndex((p) => p.id === formData.Id);
+          const index = this.productos.findIndex((p) => p.id === updatedProduct.id);
           if (index !== -1) {
             this.productos[index] = {
               ...updatedProduct,
@@ -314,7 +322,7 @@ export class Producto implements OnInit {
         },
       });
     } else {
-      this.apiService.createProducto(formData).subscribe({
+      this.apiService.createProductoConManual(formData).subscribe({
         next: (newProduct) => {
           this.productos.push({
             ...newProduct,
@@ -335,6 +343,7 @@ export class Producto implements OnInit {
     }
   }
 }
+
 
   hideDialog(): void {
     this.dialogVisible = false;
