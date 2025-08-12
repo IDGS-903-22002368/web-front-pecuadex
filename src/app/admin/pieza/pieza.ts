@@ -62,7 +62,7 @@ export class Pieza implements OnInit {
     this.piezaForm = this.fb.group({
       id: [null],
       nombre: ['', [Validators.required, Validators.minLength(3)]],
-      unidadMedida: ['', [Validators.required, Validators.minLength(1)]],
+      unidadMedida: ['Unidades'],
       descripcion: ['', [Validators.required, Validators.minLength(10)]],
     });
   }
@@ -273,20 +273,18 @@ export class Pieza implements OnInit {
   this.submitted = true;
 
   if (this.piezaForm.valid) {
-    const formData = { ...this.piezaForm.value };
+    const formData = { ...this.piezaForm.value,unidadMedida: 'Unidades' };
 
     if (formData.id) {
-      // Buscar la pieza original para conservar fechaRegistro y otros campos
       const originalPieza = this.piezas.find(p => p.id === formData.id);
       if (originalPieza) {
-        formData.fechaRegistro = originalPieza.fechaRegistro; // conservar fecha
+        formData.fechaRegistro = originalPieza.fechaRegistro;
       }
 
       this.apiService.updatePieza(formData.id, formData).subscribe({
         next: (updatedPieza) => {
           const index = this.piezas.findIndex((p) => p.id === formData.id);
           if (index !== -1) {
-            // Usar updatedPieza si devuelve datos, si no, usar lo que ya tenemos
             this.piezas[index] = {
               ...originalPieza,
               ...(updatedPieza || formData),

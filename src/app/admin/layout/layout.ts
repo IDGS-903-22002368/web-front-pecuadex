@@ -7,6 +7,7 @@ import { ProveedorComponent } from "../proveedor/proveedor";
 import { ComprasComponent } from "../compra/compra";
 import { VentasComponent } from "../venta/venta";
 import { ComponentesProducto } from '../componentes-producto/componentes-producto';
+import { Costeo } from '../costeo/costeo';
 
 interface NavItem {
   label: string;
@@ -22,7 +23,7 @@ interface NavItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [Navbar, CommonModule, Producto, Pieza, ProveedorComponent, ComprasComponent, VentasComponent, ComponentesProducto],
+  imports: [Navbar, CommonModule, Producto, Pieza, ProveedorComponent, ComprasComponent, VentasComponent, ComponentesProducto,Costeo],
   template: `
     <div class="admin-layout">
       <!-- Navbar -->
@@ -54,6 +55,10 @@ interface NavItem {
           <!-- Proveedores Component -->
           <div *ngIf="activeComponent === 'proveedores'" class="fade-in">
             <app-proveedores></app-proveedores>
+          </div>
+          <!-- Costeo Component -->
+          <div *ngIf="activeComponent === 'costeo'" class="fade-in">
+            <app-costeo></app-costeo>
           </div>
 
           <!-- Compras Component -->
@@ -158,6 +163,11 @@ export class Layout implements OnInit, OnDestroy {
           label: 'Compras',
           icon: 'fas fa-receipt',
           component: 'compras',
+        },
+        {
+          label: 'Movimientos de Costeo',
+          icon: 'fas fa-calculator',
+          component: 'costeo',
         },
       ],
     },

@@ -211,28 +211,7 @@
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="unidadMedida" class="form-label required"
-            >Unidad de Medida</label
-          >
-          <input
-            id="unidadMedida"
-            type="text"
-            formControlName="unidadMedida"
-            class="form-input"
-            [class.error]="submitted && unidadMedidaControl?.invalid"
-          />
-          <div
-            *ngIf="submitted && unidadMedidaControl?.invalid"
-            class="error-message"
-          >
-            <span *ngIf="unidadMedidaControl?.errors?.['required']"
-              >La unidad de medida es requerida</span
-            >
-          </div>
-        </div>
-      </div>
+      
 
       <div class="form-row">
         <div class="form-group">
