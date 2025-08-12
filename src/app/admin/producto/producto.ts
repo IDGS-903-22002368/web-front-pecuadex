@@ -229,121 +229,129 @@ export class Producto implements OnInit {
     this.deleteDialogVisible = true;
   }
 
-confirmDelete(): void {
-  if (this.productToDelete) {
-    this.apiService.deleteProductoConManual(this.productToDelete.id!).subscribe({
-      next: () => {
-        this.productos = this.productos.filter(
-          (val) => val.id !== this.productToDelete!.id
-        );
-        this.applyFiltersAndPagination();
-        this.deleteDialogVisible = false;
-        this.productToDelete = null;
-        this.toastr.success('Producto y manual asociado eliminados correctamente');
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Error eliminando producto:', error);
-        this.toastr.error('Error al eliminar producto');
-      },
-    });
+  confirmDelete(): void {
+    if (this.productToDelete) {
+      this.apiService
+        .deleteProductoConManual(this.productToDelete.id!)
+        .subscribe({
+          next: () => {
+            this.productos = this.productos.filter(
+              (val) => val.id !== this.productToDelete!.id
+            );
+            this.applyFiltersAndPagination();
+            this.deleteDialogVisible = false;
+            this.productToDelete = null;
+            this.toastr.success(
+              'Producto y manual asociado eliminados correctamente'
+            );
+            this.cdr.detectChanges();
+          },
+          error: (error) => {
+            console.error('Error eliminando producto:', error);
+            this.toastr.error('Error al eliminar producto');
+          },
+        });
+    }
   }
-}
 
-deleteSelectedProducts(): void {
-  if (this.selectedProductos.length === 0) return;
+  deleteSelectedProducts(): void {
+    if (this.selectedProductos.length === 0) return;
 
-  const deletePromises = this.selectedProductos.map((producto) =>
-    this.apiService.deleteProductoConManual(producto.id!).toPromise()
-  );
+    const deletePromises = this.selectedProductos.map((producto) =>
+      this.apiService.deleteProductoConManual(producto.id!).toPromise()
+    );
 
-  Promise.all(deletePromises)
-    .then(() => {
-      this.productos = this.productos.filter(
-        (val) => !this.selectedProductos.some(p => p.id === val.id)
-      );
-      this.selectedProductos = [];
-      this.applyFiltersAndPagination();
-      this.toastr.success('Productos y manuales asociados eliminados correctamente');
-      this.cdr.detectChanges();
-    })
-    .catch((error) => {
-      console.error('Error eliminando productos:', error);
-      this.toastr.error('Error al eliminar productos');
-    });
-}
+    Promise.all(deletePromises)
+      .then(() => {
+        this.productos = this.productos.filter(
+          (val) => !this.selectedProductos.some((p) => p.id === val.id)
+        );
+        this.selectedProductos = [];
+        this.applyFiltersAndPagination();
+        this.toastr.success(
+          'Productos y manuales asociados eliminados correctamente'
+        );
+        this.cdr.detectChanges();
+      })
+      .catch((error) => {
+        console.error('Error eliminando productos:', error);
+        this.toastr.error('Error al eliminar productos');
+      });
+  }
 
   manualFile: File | null = null;
 
-onManualUpload(event: any): void {
-  const file = event.target.files[0];
-  if (file) {
-    this.manualFile = file;
-    this.toastr.info(`Manual seleccionado: ${file.name}`, 'Información');
+  onManualUpload(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.manualFile = file;
+      this.toastr.info(`Manual seleccionado: ${file.name}`, 'Información');
+    }
   }
-}
-
 
   saveProduct(): void {
-  this.submitted = true;
+    this.submitted = true;
 
-  if (this.productoForm.valid) {
-    const formData = new FormData();
-    formData.append('nombre', this.productoForm.value.nombre);
-    formData.append('descripcion', this.productoForm.value.descripcion);
-    formData.append('precioSugerido', this.productoForm.value.precioSugerido);
-    formData.append('imagen', this.productoForm.value.imagen);
+    if (this.productoForm.valid) {
+      const formData = new FormData();
+      formData.append('nombre', this.productoForm.value.nombre);
+      formData.append('descripcion', this.productoForm.value.descripcion);
+      formData.append('precioSugerido', this.productoForm.value.precioSugerido);
+      formData.append('imagen', this.productoForm.value.imagen);
 
-    if (this.productoForm.value.tituloManual && this.manualFile) {
-      formData.append('tituloManual', this.productoForm.value.tituloManual);
-      formData.append('archivoManual', this.manualFile);
-    }
+      if (this.productoForm.value.tituloManual && this.manualFile) {
+        formData.append('tituloManual', this.productoForm.value.tituloManual);
+        formData.append('archivoManual', this.manualFile);
+      }
 
-    if (this.isEditMode && this.productoForm.value.id) {
-      this.apiService.updateProductoConManual(this.productoForm.value.id, formData).subscribe({
-        next: (updatedProduct) => {
-          const index = this.productos.findIndex((p) => p.id === updatedProduct.id);
-          if (index !== -1) {
-            this.productos[index] = {
-              ...updatedProduct,
-              fechaRegistro: updatedProduct.fechaRegistro
-                ? new Date(updatedProduct.fechaRegistro)
-                : new Date(),
-            };
-          }
-          this.applyFiltersAndPagination();
-          this.toastr.success('Producto actualizado correctamente');
-          this.hideDialog();
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error actualizando producto:', error);
-          this.toastr.error('Error al actualizar producto');
-        },
-      });
-    } else {
-      this.apiService.createProductoConManual(formData).subscribe({
-        next: (newProduct) => {
-          this.productos.push({
-            ...newProduct,
-            fechaRegistro: newProduct.fechaRegistro
-              ? new Date(newProduct.fechaRegistro)
-              : new Date(),
+      if (this.isEditMode && this.productoForm.value.id) {
+        this.apiService
+          .updateProductoConManual(this.productoForm.value.id, formData)
+          .subscribe({
+            next: (updatedProduct) => {
+              const index = this.productos.findIndex(
+                (p) => p.id === updatedProduct.id
+              );
+              if (index !== -1) {
+                this.productos[index] = {
+                  ...updatedProduct,
+                  fechaRegistro: updatedProduct.fechaRegistro
+                    ? new Date(updatedProduct.fechaRegistro)
+                    : new Date(),
+                };
+              }
+              this.applyFiltersAndPagination();
+              this.toastr.success('Producto actualizado correctamente');
+              this.hideDialog();
+              this.cdr.detectChanges();
+            },
+            error: (error) => {
+              console.error('Error actualizando producto:', error);
+              this.toastr.error('Error al actualizar producto');
+            },
           });
-          this.applyFiltersAndPagination();
-          this.toastr.success('Producto creado correctamente');
-          this.hideDialog();
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error creando producto:', error);
-          this.toastr.error('Error al crear producto');
-        },
-      });
+      } else {
+        this.apiService.createProductoConManual(formData).subscribe({
+          next: (newProduct) => {
+            this.productos.push({
+              ...newProduct,
+              fechaRegistro: newProduct.fechaRegistro
+                ? new Date(newProduct.fechaRegistro)
+                : new Date(),
+            });
+            this.applyFiltersAndPagination();
+            this.toastr.success('Producto creado correctamente');
+            this.hideDialog();
+            this.cdr.detectChanges();
+          },
+          error: (error) => {
+            console.error('Error creando producto:', error);
+            this.toastr.error('Error al crear producto');
+          },
+        });
+      }
     }
   }
-}
-
 
   hideDialog(): void {
     this.dialogVisible = false;
