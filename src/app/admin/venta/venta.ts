@@ -71,6 +71,7 @@ export class VentasComponent implements OnInit {
   filteredVentas: Venta[] = [];
   productos: Producto[] = [];
   usuarios: Usuario[] = [];
+  usuariosClientes: Usuario[] = []; // Nueva propiedad para usuarios filtrados
   selectedVenta: Venta | null = null;
 
   // Paginación
@@ -161,6 +162,10 @@ export class VentasComponent implements OnInit {
     this.apiService.getUsers().subscribe({
       next: (data) => {
         this.usuarios = data;
+        // Filtrar solo usuarios con rol "Client"
+        this.usuariosClientes = data.filter(usuario => 
+          usuario.roles.includes('Client')
+        );
       },
       error: (error) => {
         console.error('Error cargando usuarios:', error);
