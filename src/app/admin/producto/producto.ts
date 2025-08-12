@@ -285,57 +285,65 @@ onManualUpload(event: any): void {
 
 
   saveProduct(): void {
-    this.submitted = true;
+  this.submitted = true;
 
-    if (this.productoForm.valid) {
-      const formData = this.productoForm.value;
+  if (this.productoForm.valid) {
+    const formData = new FormData();
+    formData.append('nombre', this.productoForm.value.nombre);
+    formData.append('descripcion', this.productoForm.value.descripcion);
+    formData.append('precioSugerido', this.productoForm.value.precioSugerido);
+    formData.append('imagen', this.productoForm.value.imagen);
 
-      if (formData.id) {
-        // Actualizar producto existente
-        this.apiService.updateProducto(formData.id, formData).subscribe({
-          next: (updatedProduct) => {
-            const index = this.productos.findIndex((p) => p.id === formData.id);
-            if (index !== -1) {
-              this.productos[index] = {
-                ...updatedProduct,
-                fechaRegistro: updatedProduct.fechaRegistro
-                  ? new Date(updatedProduct.fechaRegistro)
-                  : new Date(),
-              };
-            }
-            this.applyFiltersAndPagination();
-            this.toastr.success('Producto actualizado correctamente');
-            this.hideDialog();
-            this.cdr.detectChanges();
-          },
-          error: (error) => {
-            console.error('Error actualizando producto:', error);
-            this.toastr.error('Error al actualizar producto');
-          },
-        });
-      } else {
-        // Crear nuevo producto
-        this.apiService.createProducto(formData).subscribe({
-          next: (newProduct) => {
-            this.productos.push({
-              ...newProduct,
-              fechaRegistro: newProduct.fechaRegistro
-                ? new Date(newProduct.fechaRegistro)
+    if (this.productoForm.value.tituloManual && this.manualFile) {
+      formData.append('tituloManual', this.productoForm.value.tituloManual);
+      formData.append('archivoManual', this.manualFile);
+    }
+
+    if (this.isEditMode && this.productoForm.value.id) {
+      this.apiService.updateProductoConManual(this.productoForm.value.id, formData).subscribe({
+        next: (updatedProduct) => {
+          const index = this.productos.findIndex((p) => p.id === updatedProduct.id);
+          if (index !== -1) {
+            this.productos[index] = {
+              ...updatedProduct,
+              fechaRegistro: updatedProduct.fechaRegistro
+                ? new Date(updatedProduct.fechaRegistro)
                 : new Date(),
-            });
-            this.applyFiltersAndPagination();
-            this.toastr.success('Producto creado correctamente');
-            this.hideDialog();
-            this.cdr.detectChanges();
-          },
-          error: (error) => {
-            console.error('Error creando producto:', error);
-            this.toastr.error('Error al crear producto');
-          },
-        });
-      }
+            };
+          }
+          this.applyFiltersAndPagination();
+          this.toastr.success('Producto actualizado correctamente');
+          this.hideDialog();
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error actualizando producto:', error);
+          this.toastr.error('Error al actualizar producto');
+        },
+      });
+    } else {
+      this.apiService.createProductoConManual(formData).subscribe({
+        next: (newProduct) => {
+          this.productos.push({
+            ...newProduct,
+            fechaRegistro: newProduct.fechaRegistro
+              ? new Date(newProduct.fechaRegistro)
+              : new Date(),
+          });
+          this.applyFiltersAndPagination();
+          this.toastr.success('Producto creado correctamente');
+          this.hideDialog();
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error creando producto:', error);
+          this.toastr.error('Error al crear producto');
+        },
+      });
     }
   }
+}
+
 
   hideDialog(): void {
     this.dialogVisible = false;
