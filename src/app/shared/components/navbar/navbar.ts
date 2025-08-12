@@ -148,15 +148,6 @@ interface NavItem {
                     <i class="fas fa-user-edit me-2"></i>Mi Perfil
                   </button>
                 </li>
-                <li>
-                  <button
-                    class="dropdown-item btn btn-link text-start"
-                    type="button"
-                    (click)="goToSettings(); $event.preventDefault()"
-                  >
-                    <i class="fas fa-cog me-2"></i>Configuración
-                  </button>
-                </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
                   <button
