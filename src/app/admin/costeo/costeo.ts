@@ -2,14 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../core/services/api';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-costeo',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,DatePipe],
+  imports: [CommonModule, ReactiveFormsModule, DatePipe],
   templateUrl: './costeo.html',
-  styleUrls: ['./costeo.scss']
+  styleUrls: ['./costeo.scss'],
 })
 export class Costeo implements OnInit {
   movimientos: any[] = [];
@@ -28,39 +28,42 @@ export class Costeo implements OnInit {
   sortField = '';
   sortDirection: 'asc' | 'desc' = 'asc';
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.loadMovimientos();
   }
 
- loadMovimientos(): void {
-  this.loading = true;
-  console.log('Cargando movimientos...');
+  loadMovimientos(): void {
+    this.loading = true;
+    console.log('Cargando movimientos...');
 
-  this.apiService.getMovimientos().subscribe({
-    next: (data) => {
-      console.log('Datos recibidos:', data);
-      this.movimientos = data || [];
-      this.applyFiltersAndPagination();
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Error cargando movimientos:', err);
-      this.loading = false; 
-    },
-    complete: () => {
-      console.log('Carga completada');
-    }
-  });
-}
-
+    this.apiService.getMovimientos().subscribe({
+      next: (data) => {
+        console.log('Datos recibidos:', data);
+        this.movimientos = data || [];
+        this.applyFiltersAndPagination();
+        this.loading = false;
+        this.cdr.detectChanges(); // Forzar detección de cambios
+      },
+      error: (err) => {
+        console.error('Error cargando movimientos:', err);
+        this.loading = false;
+        this.cdr.detectChanges(); // Forzar detección de cambios
+      },
+      complete: () => {
+        console.log('Carga completada');
+      },
+    });
+  }
 
   onSearch(event: any): void {
     this.searchTerm = event.target.value.toLowerCase();
     this.currentPage = 1;
     this.applyFiltersAndPagination();
+    this.cdr.detectChanges(); // Por si acaso
   }
+
   getSortIcon(field: string): string {
     if (this.sortField !== field) return 'sort';
     return this.sortDirection === 'asc' ? 'sort-up' : 'sort-down';
@@ -70,9 +73,10 @@ export class Costeo implements OnInit {
     let filtered = [...this.movimientos];
 
     if (this.searchTerm) {
-      filtered = filtered.filter(mov =>
-        mov.pieza?.nombre?.toLowerCase().includes(this.searchTerm) ||
-        mov.tipoMovimiento?.toLowerCase().includes(this.searchTerm)
+      filtered = filtered.filter(
+        (mov) =>
+          mov.pieza?.nombre?.toLowerCase().includes(this.searchTerm) ||
+          mov.tipoMovimiento?.toLowerCase().includes(this.searchTerm)
       );
     }
 
@@ -108,12 +112,14 @@ export class Costeo implements OnInit {
       this.sortDirection = 'asc';
     }
     this.applyFiltersAndPagination();
+    this.cdr.detectChanges(); // Por si acaso
   }
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
       this.applyFiltersAndPagination();
+      this.cdr.detectChanges(); // Por si acaso
     }
   }
 
@@ -121,6 +127,7 @@ export class Costeo implements OnInit {
     this.itemsPerPage = parseInt(event.target.value);
     this.currentPage = 1;
     this.applyFiltersAndPagination();
+    this.cdr.detectChanges(); // Por si acaso
   }
 
   getPaginationInfo(): string {

@@ -8,6 +8,7 @@ import { ComprasComponent } from '../compra/compra';
 import { VentasComponent } from '../venta/venta';
 import { ComponentesProducto } from '../componentes-producto/componentes-producto';
 import { Costeo } from '../costeo/costeo';
+import { DashboardComponent } from '../dashboard/dashboard';
 
 interface NavItem {
   label: string;
@@ -33,6 +34,7 @@ interface NavItem {
     VentasComponent,
     ComponentesProducto,
     Costeo,
+    DashboardComponent,
   ],
   template: `
     <div class="admin-layout">
@@ -49,7 +51,9 @@ interface NavItem {
       <main class="main-content">
         <div class="container-fluid py-4">
           <!-- Dashboard Component -->
-          <div *ngIf="activeComponent === 'dashboard'" class="fade-in"></div>
+          <div *ngIf="activeComponent === 'dashboard'" class="fade-in">
+            <app-admin-dashboard></app-admin-dashboard>
+          </div>
 
           <!-- Comentarios Clientes Component -->
           <div

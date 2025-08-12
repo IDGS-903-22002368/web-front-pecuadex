@@ -8,13 +8,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { ApiService } from '../../core/services/api'; // este sería el mismo que usas para cargar Productos y Piezas
+import { ApiService } from '../../core/services/api';
+
 export interface ComponentesProducto {
-  id?: number; // opcional
+  id?: number;
   productoId: number;
   piezaId: number;
   cantidadRequerida: number;
-
   // propiedades opcionales devueltas por el backend (Include)
   producto?: { nombre: string };
   pieza?: { nombre: string };
@@ -39,8 +39,11 @@ export class ComponentesProducto implements OnInit {
   itemsPerPage = 10;
   totalItems = 0;
   totalPages = 0;
+
   // Estados
   loading = false;
+  loadingProductos = false;
+  loadingPiezas = false;
   sortField = '';
   sortDirection: 'asc' | 'desc' = 'asc';
   itemsPerPageOptions = [10, 20, 50];
@@ -53,7 +56,6 @@ export class ComponentesProducto implements OnInit {
 
   componenteForm: FormGroup;
   componenteToDelete: ComponentesProducto | null = null;
-  Math: any;
 
   constructor(
     private apiService: ApiService,
@@ -75,29 +77,66 @@ export class ComponentesProducto implements OnInit {
   }
 
   loadComponentes(): void {
+    this.loading = true;
     this.apiService.getComponentesProducto().subscribe({
       next: (data) => {
-        this.componentes = data;
+        this.componentes = data || [];
         this.applyFilters();
+        this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.toastr.error('Error cargando componentes'),
+      error: (error) => {
+        console.error('Error cargando componentes:', error);
+        this.toastr.error('Error cargando componentes');
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
     });
   }
 
   loadProductosYPiezas(): void {
-    this.apiService.getProductos().subscribe((data) => (this.productos = data));
-    this.apiService.getPiezas().subscribe((data) => (this.piezas = data));
-  }
-  applyFiltersAndPagination(): void {
-    let filtered = [...this.productos];
+    // Cargar productos
+    this.loadingProductos = true;
+    this.apiService.getProductos().subscribe({
+      next: (data) => {
+        this.productos = data || [];
+        this.loadingProductos = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error cargando productos:', error);
+        this.toastr.error('Error cargando productos');
+        this.loadingProductos = false;
+        this.cdr.detectChanges();
+      },
+    });
 
-    // Aplicar filtro de búsqueda
+    // Cargar piezas
+    this.loadingPiezas = true;
+    this.apiService.getPiezas().subscribe({
+      next: (data) => {
+        this.piezas = data || [];
+        this.loadingPiezas = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error cargando piezas:', error);
+        this.toastr.error('Error cargando piezas');
+        this.loadingPiezas = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  // CORREGIDO: Este método ahora filtra componentes, no productos
+  applyFilters(): void {
+    let filtered = [...this.componentes]; // ← CORREGIDO: era this.productos
+
     if (this.searchTerm) {
       filtered = filtered.filter(
-        (producto) =>
-          producto.nombre.toLowerCase().includes(this.searchTerm) ||
-          producto.descripcion.toLowerCase().includes(this.searchTerm) ||
-          producto.precioSugerido.toString().includes(this.searchTerm)
+        (c) =>
+          c.producto?.nombre?.toLowerCase().includes(this.searchTerm) ||
+          c.pieza?.nombre?.toLowerCase().includes(this.searchTerm)
       );
     }
 
@@ -110,9 +149,15 @@ export class ComponentesProducto implements OnInit {
         if (typeof aValue === 'string') aValue = aValue.toLowerCase();
         if (typeof bValue === 'string') bValue = bValue.toLowerCase();
 
-        if (aValue === undefined && bValue === undefined) return 0;
-        if (aValue === undefined) return this.sortDirection === 'asc' ? 1 : -1;
-        if (bValue === undefined) return this.sortDirection === 'asc' ? -1 : 1;
+        if (
+          (aValue === undefined || aValue === null) &&
+          (bValue === undefined || bValue === null)
+        )
+          return 0;
+        if (aValue === undefined || aValue === null)
+          return this.sortDirection === 'asc' ? 1 : -1;
+        if (bValue === undefined || bValue === null)
+          return this.sortDirection === 'asc' ? -1 : 1;
 
         if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
         if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
@@ -130,26 +175,6 @@ export class ComponentesProducto implements OnInit {
     this.filteredComponentes = filtered.slice(startIndex, endIndex);
   }
 
-  applyFilters(): void {
-    let filtered = [...this.componentes];
-
-    if (this.searchTerm) {
-      filtered = filtered.filter(
-        (c) =>
-          c.producto?.nombre?.toLowerCase().includes(this.searchTerm) ||
-          c.pieza?.nombre?.toLowerCase().includes(this.searchTerm)
-      );
-    }
-
-    this.totalItems = filtered.length;
-    this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    this.filteredComponentes = filtered.slice(
-      startIndex,
-      startIndex + this.itemsPerPage
-    );
-  }
-
   sort(field: string): void {
     if (this.sortField === field) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -157,7 +182,8 @@ export class ComponentesProducto implements OnInit {
       this.sortField = field;
       this.sortDirection = 'asc';
     }
-    this.applyFiltersAndPagination();
+    this.applyFilters();
+    this.cdr.detectChanges();
   }
 
   getSortIcon(field: string): string {
@@ -168,20 +194,22 @@ export class ComponentesProducto implements OnInit {
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-      this.applyFiltersAndPagination();
+      this.applyFilters();
+      this.cdr.detectChanges();
     }
   }
 
   changeItemsPerPage(event: any): void {
     this.itemsPerPage = parseInt(event.target.value);
     this.currentPage = 1;
-    this.applyFiltersAndPagination();
+    this.applyFilters();
+    this.cdr.detectChanges();
   }
 
   getPaginationInfo(): string {
     const start = (this.currentPage - 1) * this.itemsPerPage + 1;
     const end = Math.min(this.currentPage * this.itemsPerPage, this.totalItems);
-    return `Mostrando ${start} a ${end} de ${this.totalItems} piezas`;
+    return `Mostrando ${start} a ${end} de ${this.totalItems} componentes`; // ← CORREGIDO: era "piezas"
   }
 
   // Selección múltiple
@@ -189,23 +217,27 @@ export class ComponentesProducto implements OnInit {
     if (this.isAllSelected()) {
       this.selectedComponentesProducto = [];
     } else {
-      this.selectedComponentesProducto = [...this.selectedComponentesProducto];
+      this.selectedComponentesProducto = [...this.filteredComponentes]; // ← CORREGIDO
     }
+    this.cdr.detectChanges();
   }
 
-  toggleSelect(pieza: ComponentesProducto): void {
+  toggleSelect(componente: ComponentesProducto): void {
+    // ← CORREGIDO: parámetro renombrado
     const index = this.selectedComponentesProducto.findIndex(
-      (p) => p.id === pieza.id
+      (p) => p.id === componente.id
     );
     if (index > -1) {
       this.selectedComponentesProducto.splice(index, 1);
     } else {
-      this.selectedComponentesProducto.push(pieza);
+      this.selectedComponentesProducto.push(componente);
     }
+    this.cdr.detectChanges();
   }
 
-  isSelected(pieza: ComponentesProducto): boolean {
-    return this.selectedComponentesProducto.some((p) => p.id === pieza.id);
+  isSelected(componente: ComponentesProducto): boolean {
+    // ← CORREGIDO: parámetro renombrado
+    return this.selectedComponentesProducto.some((p) => p.id === componente.id);
   }
 
   isAllSelected(): boolean {
@@ -215,70 +247,112 @@ export class ComponentesProducto implements OnInit {
     );
   }
 
-  onSearch(event: any) {
+  onSearch(event: any): void {
     this.searchTerm = event.target.value.toLowerCase();
+    this.currentPage = 1; // Reset page when searching
     this.applyFilters();
+    this.cdr.detectChanges();
   }
 
-  openNew() {
+  openNew(): void {
     this.isEditMode = false;
-    this.componenteForm.reset({ cantidadRequerida: 0 });
+    this.componenteForm.reset({ cantidadRequerida: 1 }); // ← Valor por defecto más lógico
     this.dialogVisible = true;
     this.submitted = false;
+    this.cdr.detectChanges();
   }
 
-  editComponente(c: ComponentesProducto) {
+  editComponente(c: ComponentesProducto): void {
     this.isEditMode = true;
     this.componenteForm.patchValue(c);
     this.dialogVisible = true;
+    this.cdr.detectChanges();
   }
 
-  saveComponente() {
+  saveComponente(): void {
     this.submitted = true;
-    if (this.componenteForm.invalid) return;
+    if (this.componenteForm.invalid) {
+      this.cdr.detectChanges();
+      return;
+    }
 
     const formValue = this.componenteForm.value;
 
     if (formValue.id) {
+      // Actualizar
       this.apiService
         .updateComponenteProducto(formValue.id, formValue)
         .subscribe({
           next: () => {
-            this.toastr.success('Componente actualizado');
+            this.toastr.success('Componente actualizado correctamente');
             this.loadComponentes();
             this.dialogVisible = false;
+            this.submitted = false;
+            this.cdr.detectChanges();
           },
-          error: () => this.toastr.error('Error actualizando'),
+          error: (error) => {
+            console.error('Error actualizando componente:', error);
+            this.toastr.error('Error actualizando componente');
+            this.cdr.detectChanges();
+          },
         });
     } else {
+      // Crear
       this.apiService.createComponenteProducto(formValue).subscribe({
         next: () => {
-          this.toastr.success('Componente creado');
+          this.toastr.success('Componente creado correctamente');
           this.loadComponentes();
           this.dialogVisible = false;
+          this.submitted = false;
+          this.cdr.detectChanges();
         },
-        error: () => this.toastr.error('Error creando'),
+        error: (error) => {
+          console.error('Error creando componente:', error);
+          this.toastr.error('Error creando componente');
+          this.cdr.detectChanges();
+        },
       });
     }
   }
 
-  deleteComponente(c: ComponentesProducto) {
+  deleteComponente(c: ComponentesProducto): void {
     this.componenteToDelete = c;
     this.deleteDialogVisible = true;
+    this.cdr.detectChanges();
   }
 
-  confirmDelete() {
-    if (!this.componenteToDelete?.id) return; // verificamos que existe y no es null
+  confirmDelete(): void {
+    if (!this.componenteToDelete?.id) return;
 
     this.apiService
       .deleteComponenteProducto(this.componenteToDelete.id)
       .subscribe({
         next: () => {
-          this.toastr.success('Componente eliminado');
+          this.toastr.success('Componente eliminado correctamente');
           this.loadComponentes();
           this.deleteDialogVisible = false;
+          this.componenteToDelete = null;
+          this.cdr.detectChanges();
         },
-        error: () => this.toastr.error('Error eliminando'),
+        error: (error) => {
+          console.error('Error eliminando componente:', error);
+          this.toastr.error('Error eliminando componente');
+          this.cdr.detectChanges();
+        },
       });
+  }
+
+  // Método para cerrar modales
+  hideDialog(): void {
+    this.dialogVisible = false;
+    this.submitted = false;
+    this.componenteForm.reset();
+    this.cdr.detectChanges();
+  }
+
+  hideDeleteDialog(): void {
+    this.deleteDialogVisible = false;
+    this.componenteToDelete = null;
+    this.cdr.detectChanges();
   }
 }
