@@ -161,12 +161,6 @@
         <table class="table">
           <tbody>
             <tr>
-              <th>Fecha:</th>
-              <td>
-                <input type="date" formControlName="fecha" class="form-control" />
-              </td>
-            </tr>
-            <tr>
               <th>Proveedor:</th>
               <td>
                 <select formControlName="proveedorId" class="form-control">
@@ -189,7 +183,6 @@
               <th>Presentación</th>
               <th>Cantidad total de unidades</th>
               <th>Precio Unitario</th>
-              <th>Total</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -211,9 +204,6 @@
               </td>
               <td>
                 <input type="number" formControlName="precioUnitario" class="form-control" (input)="calcularTotalDetalle(i)" />
-              </td>
-              <td>
-                <input type="number" formControlName="precioTotal" class="form-control" readonly />
               </td>
               <td>
                 <button type="button" class="btn btn-danger btn-sm" (click)="removeDetalle(i)" *ngIf="detalles.length > 1">

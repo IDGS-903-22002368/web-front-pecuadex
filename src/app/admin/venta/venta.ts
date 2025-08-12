@@ -26,10 +26,16 @@ interface Producto {
   }[];
 }
 
+interface Usuario {
+  id: string;
+  email: string;
+  fullName: string;
+  roles: string[];
+}
+
 interface DetalleVentaForm {
   productoId: number;
   cantidad: number;
-  precioUnitario: number;
   subtotal: number;
 }
 
@@ -40,6 +46,7 @@ interface Venta {
   estado: string;
   detalles: DetalleVenta[];
   usuarioId?: string;
+  usuario?: Usuario;
 }
 
 interface DetalleVenta {
@@ -63,6 +70,7 @@ export class VentasComponent implements OnInit {
   ventas: Venta[] = [];
   filteredVentas: Venta[] = [];
   productos: Producto[] = [];
+  usuarios: Usuario[] = [];
   selectedVenta: Venta | null = null;
 
   // Paginación
@@ -96,7 +104,7 @@ export class VentasComponent implements OnInit {
   ) {
     this.ventaForm = this.fb.group({
       id: [null],
-      fecha: [new Date().toISOString().substring(0, 10), Validators.required],
+      usuarioId: ['', Validators.required],
       detalles: this.fb.array([]),
     });
   }
@@ -104,6 +112,7 @@ export class VentasComponent implements OnInit {
   ngOnInit(): void {
     this.loadVentas();
     this.loadProductos();
+    this.loadUsuarios();
   }
 
   get detalles(): FormArray {
@@ -148,6 +157,18 @@ export class VentasComponent implements OnInit {
     });
   }
 
+  loadUsuarios(): void {
+    this.apiService.getUsers().subscribe({
+      next: (data) => {
+        this.usuarios = data;
+      },
+      error: (error) => {
+        console.error('Error cargando usuarios:', error);
+        this.toastr.error('Error al cargar usuarios', 'Error');
+      },
+    });
+  }
+
   // Filtrado y búsqueda
   onSearch(event: any): void {
     this.searchTerm = event.target.value.toLowerCase();
@@ -173,9 +194,11 @@ export class VentasComponent implements OnInit {
       filtered = filtered.filter(
         (venta) =>
           venta.detalles.some(d => 
-            d.producto?.nombre.toLowerCase().includes(this.searchTerm) ||
-            venta.estado.toLowerCase().includes(this.searchTerm)
-          )
+            d.producto?.nombre.toLowerCase().includes(this.searchTerm)
+          ) ||
+          venta.estado.toLowerCase().includes(this.searchTerm) ||
+          venta.usuario?.fullName.toLowerCase().includes(this.searchTerm) ||
+          venta.usuario?.email.toLowerCase().includes(this.searchTerm)
       );
     }
 
@@ -255,8 +278,7 @@ export class VentasComponent implements OnInit {
     return this.fb.group({
       productoId: [detalle?.productoId || null, Validators.required],
       cantidad: [detalle?.cantidad || 1, [Validators.required, Validators.min(1)]],
-      precioUnitario: [detalle?.precioUnitario || 0, [Validators.required, Validators.min(0.01)]],
-      subtotal: [detalle?.subtotal || 0],
+      subtotal: [{ value: detalle?.subtotal || 0, disabled: true }],
     });
   }
 
@@ -273,9 +295,16 @@ export class VentasComponent implements OnInit {
   calcularTotalDetalle(index: number): void {
     const detalle = this.detalles.at(index);
     const cantidad = detalle.get('cantidad')?.value || 0;
-    const precioUnitario = detalle.get('precioUnitario')?.value || 0;
-    const subtotal = cantidad * precioUnitario;
-    detalle.get('subtotal')?.setValue(subtotal);
+    const productoId = detalle.get('productoId')?.value;
+    
+    if (productoId) {
+      const producto = this.productos.find(p => p.id == productoId);
+      if (producto) {
+        const subtotal = cantidad * producto.precioSugerido;
+        detalle.get('subtotal')?.setValue(subtotal);
+      }
+    }
+    
     this.calcularTotalVenta();
   }
 
@@ -292,7 +321,7 @@ export class VentasComponent implements OnInit {
   // CRUD Operations
   openNew(): void {
     this.ventaForm.reset({
-      fecha: new Date().toISOString().substring(0, 10),
+      usuarioId: '',
       detalles: []
     });
     this.detalles.clear();
@@ -311,23 +340,32 @@ export class VentasComponent implements OnInit {
 
     if (this.ventaForm.valid && this.detalles.length > 0) {
       const formData = this.ventaForm.value;
+      
       const ventaData = {
-        fecha: formData.fecha,
-        detalles: formData.detalles.map((d: any) => ({
-          productoId: d.productoId,
-          cantidad: d.cantidad,
-          precioUnitario: d.precioUnitario,
-          subtotal: d.subtotal
-        }))
+        usuarioId: formData.usuarioId,
+        detalles: formData.detalles.map((d: any) => {
+          const producto = this.productos.find(p => p.id == d.productoId);
+          return {
+            productoId: d.productoId,
+            cantidad: d.cantidad,
+            precioUnitario: producto ? producto.precioSugerido : 0,
+            subtotal: d.subtotal
+          };
+        })
       };
+
+      console.log('Datos a enviar:', JSON.stringify(ventaData, null, 2));
 
       this.apiService.createVenta(ventaData).subscribe({
         next: (newVenta) => {
-          // Vincular los productos a los detalles de la nueva venta
+          // Vincular los productos y usuario a la nueva venta
           newVenta.detalles = newVenta.detalles.map((detalle: DetalleVenta) => ({
             ...detalle,
             producto: this.productos.find(p => p.id === detalle.productoId)
           }));
+          
+          newVenta.usuario = this.usuarios.find(u => u.id === newVenta.usuarioId);
+          newVenta.fecha = new Date(newVenta.fecha);
           
           this.ventas.unshift(newVenta);
           this.applyFiltersAndPagination();
@@ -337,7 +375,7 @@ export class VentasComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error creando venta:', error);
-          this.toastr.error('Error al crear venta');
+          this.toastr.error('Error al crear venta: ' + (error.error?.message || 'Error desconocido'));
         },
       });
     }
@@ -349,8 +387,8 @@ export class VentasComponent implements OnInit {
   }
 
   // Getters para controles del formulario
-  get fechaControl(): AbstractControl | null {
-    return this.ventaForm.get('fecha');
+  get usuarioControl(): AbstractControl | null {
+    return this.ventaForm.get('usuarioId');
   }
 
   getProductoControl(index: number): AbstractControl | null {
@@ -361,19 +399,36 @@ export class VentasComponent implements OnInit {
     return this.detalles.at(index).get('cantidad');
   }
 
-  getPrecioUnitarioControl(index: number): AbstractControl | null {
-    return this.detalles.at(index).get('precioUnitario');
+  // Método para actualizar el subtotal cuando se selecciona un producto o cambia la cantidad
+  onProductoChange(index: number): void {
+    this.calcularTotalDetalle(index);
   }
 
-  // Método para actualizar el precio unitario cuando se selecciona un producto
-  onProductoChange(index: number): void {
-    const detalle = this.detalles.at(index);
-    const productoId = detalle.get('productoId')?.value;
-    const producto = this.productos.find(p => p.id === productoId);
-    
-    if (producto) {
-      detalle.get('precioUnitario')?.setValue(producto.precioSugerido);
-      this.calcularTotalDetalle(index);
-    }
+  onCantidadChange(index: number): void {
+    this.calcularTotalDetalle(index);
+  }
+
+  // Método para obtener el precio sugerido de un producto seleccionado
+  getProductoPrecio(productoId: number): number {
+    const producto = this.productos.find(p => p.id == productoId);
+    return producto ? producto.precioSugerido : 0;
+  }
+
+  // Método para verificar stock disponible (opcional - requeriría endpoint adicional)
+  checkStockDisponible(productoId: number, cantidadRequerida: number): boolean {
+    // Esta funcionalidad requeriría un endpoint que devuelva el stock actual
+    // por ahora retorna true, pero podrías implementarlo
+    return true;
+  }
+
+  // Método para obtener información adicional del producto
+  getProductoInfo(productoId: number): Producto | undefined {
+    return this.productos.find(p => p.id == productoId);
+  }
+
+  // Método para obtener el nombre del usuario
+  getUsuarioNombre(usuarioId: string): string {
+    const usuario = this.usuarios.find(u => u.id === usuarioId);
+    return usuario ? usuario.fullName : 'Usuario no encontrado';
   }
 }

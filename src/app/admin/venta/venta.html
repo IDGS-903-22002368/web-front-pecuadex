@@ -56,6 +56,7 @@
               Fecha
               <i class="icon-{{ getSortIcon('fecha') }}"></i>
             </th>
+            <th>Usuario</th>
             <th>Productos</th>
             <th class="sortable" (click)="sort('total')">
               Total
@@ -69,6 +70,7 @@
           <tr *ngFor="let venta of filteredVentas">
             <td class="font-bold">{{ venta.id }}</td>
             <td>{{ venta.fecha | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ getUsuarioNombre(venta.usuarioId!) }}</td>
             <td>
               <ul class="productos-list">
                 <li *ngFor="let detalle of venta.detalles">
@@ -92,7 +94,7 @@
           </tr>
 
           <tr *ngIf="filteredVentas.length === 0" class="no-data">
-            <td colspan="6" class="text-center">No se encontraron ventas</td>
+            <td colspan="7" class="text-center">No se encontraron ventas</td>
           </tr>
         </tbody>
       </table>
@@ -156,17 +158,26 @@
     <form [formGroup]="ventaForm" (ngSubmit)="saveVenta()">
       <div class="modal-body">
         
-        <!-- Datos principales -->
-        <table class="table">
-          <tbody>
-            <tr>
-              <th>Fecha:</th>
-              <td>
-                <input type="date" formControlName="fecha" class="form-control" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Selección de Cliente -->
+        <div class="form-group">
+          <label for="usuarioId" class="form-label">
+            <strong>Usuario *</strong>
+          </label>
+          <select 
+            id="usuarioId"
+            formControlName="usuarioId" 
+            class="form-control"
+            [class.is-invalid]="usuarioControl?.invalid && (usuarioControl?.dirty || usuarioControl?.touched || submitted)"
+          >
+            <option value="">Seleccione un usuario</option>
+            <option *ngFor="let usuario of usuarios" [value]="usuario.id">
+              {{ usuario.fullName }} ({{ usuario.email }})
+            </option>
+          </select>
+          <div *ngIf="usuarioControl?.invalid && (usuarioControl?.dirty || usuarioControl?.touched || submitted)" class="error-message">
+            Usuario es requerido
+          </div>
+        </div>
 
         <!-- Tabla de detalles -->
         <h4>Detalles de Venta</h4>
@@ -174,8 +185,8 @@
           <thead>
             <tr>
               <th>Producto</th>
-              <th>Cantidad</th>
               <th>Precio Unitario</th>
+              <th>Cantidad</th>
               <th>Subtotal</th>
               <th>Acciones</th>
             </tr>
@@ -186,11 +197,12 @@
                 <select 
                   formControlName="productoId" 
                   class="form-control" 
-                  (change)="onProductoChange(i); calcularTotalDetalle(i)"
+                  (change)="onProductoChange(i)"
+                  [class.is-invalid]="getProductoControl(i)?.invalid && (getProductoControl(i)?.dirty || getProductoControl(i)?.touched || submitted)"
                 >
                   <option [ngValue]="null">Seleccione producto</option>
                   <option *ngFor="let producto of productos" [value]="producto.id">
-                    {{ producto.nombre }} ({{ producto.precioSugerido | currency }})
+                    {{ producto.nombre }}
                   </option>
                 </select>
                 <div *ngIf="getProductoControl(i)?.invalid && (getProductoControl(i)?.dirty || getProductoControl(i)?.touched || submitted)" class="error-message">
@@ -198,36 +210,31 @@
                 </div>
               </td>
               <td>
+                <span class="precio-display">
+                  {{ getProductoPrecio(detalle.get('productoId')?.value) | currency }}
+                </span>
+              </td>
+              <td>
                 <input 
                   type="number" 
                   formControlName="cantidad" 
                   class="form-control" 
                   min="1"
-                  (input)="calcularTotalDetalle(i)" 
+                  (input)="onCantidadChange(i)"
+                  [class.is-invalid]="getCantidadControl(i)?.invalid && (getCantidadControl(i)?.dirty || getCantidadControl(i)?.touched || submitted)"
                 />
                 <div *ngIf="getCantidadControl(i)?.invalid && (getCantidadControl(i)?.dirty || getCantidadControl(i)?.touched || submitted)" class="error-message">
                   Cantidad mínima: 1
                 </div>
               </td>
               <td>
-                <input 
-                  type="number" 
-                  formControlName="precioUnitario" 
-                  class="form-control" 
-                  min="0.01"
-                  step="0.01"
-                  (input)="calcularTotalDetalle(i)" 
-                />
-                <div *ngIf="getPrecioUnitarioControl(i)?.invalid && (getPrecioUnitarioControl(i)?.dirty || getPrecioUnitarioControl(i)?.touched || submitted)" class="error-message">
-                  Precio debe ser mayor a 0
-                </div>
-              </td>
-              <td>
-                <input type="number" formControlName="subtotal" class="form-control" readonly />
+                <span class="subtotal-display">
+                  {{ detalle.get('subtotal')?.value | currency }}
+                </span>
               </td>
               <td>
                 <button type="button" class="btn btn-danger btn-sm" (click)="removeDetalle(i)" *ngIf="detalles.length > 1">
-                  Eliminar
+                  <i class="icon-trash"></i>
                 </button>
               </td>
             </tr>
@@ -235,12 +242,13 @@
         </table>
 
         <!-- Botón para agregar más filas -->
-        <button type="button" class="btn btn-outline-dark" (click)="addDetalle()">
+        <button type="button" class="btn btn-outline-primary" (click)="addDetalle()">
+          <i class="icon-plus"></i>
           Agregar Producto
         </button>
 
         <div class="mt-3 text-end">
-          <strong>Total Venta: {{ calcularTotalVenta() | currency }}</strong>
+          <strong class="total-venta">Total Venta: {{ calcularTotalVenta() | currency }}</strong>
         </div>
 
       </div>
@@ -249,8 +257,13 @@
         <button type="button" class="btn btn-outline" (click)="hideDialog()">
           Cancelar
         </button>
-        <button type="submit" class="btn btn-success" [disabled]="ventaForm.invalid || detalles.length === 0">
-          Guardar
+        <button 
+          type="submit" 
+          class="btn btn-success" 
+          [disabled]="ventaForm.invalid || detalles.length === 0"
+        >
+          <i class="icon-save"></i>
+          Guardar Venta
         </button>
       </div>
     </form>
@@ -275,7 +288,11 @@
       <div class="venta-info">
         <div class="info-row">
           <span class="info-label">Fecha:</span>
-          <span class="info-value">{{ selectedVenta?.fecha | date: 'dd/MM/yyyy' }}</span>
+          <span class="info-value">{{ selectedVenta?.fecha | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Usuario:</span>
+          <span class="info-value">{{ getUsuarioNombre(selectedVenta?.usuarioId!) }}</span>
         </div>
         <div class="info-row">
           <span class="info-label">Estado:</span>

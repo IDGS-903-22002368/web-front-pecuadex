@@ -1,0 +1,122 @@
+<div class="movimientos-container">
+  <!-- Header -->
+  <div class="header-card">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h2 class="page-title">
+          <i class="icon-list"></i>
+          <span>Gestión de Movimientos</span>
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla Container -->
+  <div class="table-container">
+    <!-- Table Header Controls -->
+    <div class="table-header">
+      <h3 class="table-title">Listado de Movimientos de Piezas</h3>
+
+      <div class="table-actions">
+        <div class="search-box">
+          <i class="icon-search"></i>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            (input)="onSearch($event)"
+            class="search-input"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando movimientos...</p>
+    </div>
+
+    <!-- Tabla -->
+    <div *ngIf="!loading" class="table-wrapper">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sort('id')">
+              ID <i class="icon-{{ getSortIcon('id') }}"></i>
+            </th>
+            <th>Pieza</th>
+            <th class="sortable" (click)="sort('fecha')">
+              Fecha <i class="icon-{{ getSortIcon('fecha') }}"></i>
+            </th>
+            <th>Tipo Movimiento</th>
+            <th>Cantidad</th>
+            <th>Costo Unitario</th>
+            <th>Costo Promedio</th>
+            <th>Valor Debe</th>
+            <th>Valor Haber</th>
+            <th>Saldo Valor</th>
+            <th>Existencias</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let mov of filteredMovimientos">
+            <td>{{ mov.id }}</td>
+            <td>{{ mov.pieza?.nombre }}</td>
+            <td>{{ mov.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ mov.tipoMovimiento }}</td>
+            <td>{{ mov.cantidad }}</td>
+            <td>{{ mov.costoUnitario | currency }}</td>
+            <td>{{ mov.costoPromedio | currency }}</td>
+            <td>{{ mov.valorDebe | currency }}</td>
+            <td>{{ mov.valorHaber | currency }}</td>
+            <td>{{ mov.saldoValor | currency }}</td>
+            <td>{{ mov.existencias }}</td>
+          </tr>
+
+          <tr *ngIf="filteredMovimientos.length === 0" class="no-data">
+            <td colspan="11" class="text-center">No se encontraron movimientos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && totalItems > 0" class="pagination-container">
+      <div class="pagination-info">{{ getPaginationInfo() }}</div>
+
+      <div class="pagination-controls">
+        <select
+          class="items-per-page"
+          [value]="itemsPerPage"
+          (change)="changeItemsPerPage($event)"
+        >
+          <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+            {{ option }} por página
+          </option>
+        </select>
+
+        <div class="page-buttons">
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage <= 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            Anterior
+          </button>
+
+          <span class="page-info">
+            Página {{ currentPage }} de {{ totalPages }}
+          </span>
+
+          <button
+            class="btn btn-sm"
+            [disabled]="currentPage >= totalPages"
+            (click)="goToPage(currentPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
