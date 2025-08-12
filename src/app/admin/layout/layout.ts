@@ -9,6 +9,7 @@ import { VentasComponent } from '../venta/venta';
 import { ComponentesProducto } from '../componentes-producto/componentes-producto';
 import { Costeo } from '../costeo/costeo';
 import { DashboardComponent } from '../dashboard/dashboard';
+import { ProfileComponent } from '../../shared/components/profile/profile';
 
 interface NavItem {
   label: string;
@@ -35,6 +36,7 @@ interface NavItem {
     ComponentesProducto,
     Costeo,
     DashboardComponent,
+    ProfileComponent,
   ],
   template: `
     <div class="admin-layout">
@@ -99,7 +101,9 @@ interface NavItem {
           </div>
 
           <!-- Perfil Component -->
-          <div *ngIf="activeComponent === 'perfil'" class="fade-in"></div>
+          <div *ngIf="activeComponent === 'perfil'" class="fade-in">
+            <app-perfil></app-perfil>
+          </div>
 
           <!-- Default: Dashboard cuando no hay componente activo -->
           <div *ngIf="!activeComponent" class="fade-in"></div>

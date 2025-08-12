@@ -1,1 +1,206 @@
-<p>profile works!</p>
+<div class="perfil-container">
+  <!-- Header -->
+  <div class="header-card">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h2 class="page-title">
+          <i class="icon-user"></i>
+          <span>Mi Perfil</span>
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando información del perfil...</p>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!loading" class="profile-content">
+    <!-- Profile Info Card -->
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="avatar-section">
+          <div class="avatar-circle">
+            <span class="avatar-text">{{ getInitials() }}</span>
+          </div>
+          <div class="profile-basic-info">
+            <h3 class="user-name">{{ userInfo?.fullName || 'Usuario' }}</h3>
+            <p class="user-email">{{ userInfo?.email }}</p>
+            <div class="user-roles">
+              <span
+                *ngFor="let role of userInfo?.roles"
+                class="role-badge"
+                [class]="getRoleClass(role)"
+              >
+                {{ getRoleDisplayName(role) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Details -->
+      <div class="profile-details-section">
+        <h4 class="section-title">
+          <i class="icon-info"></i>
+          Información de la Cuenta
+        </h4>
+
+        <div class="profile-details">
+          <div class="detail-row">
+            <span class="detail-label">Nombre Completo:</span>
+            <span class="detail-value"
+              >{{ userInfo?.fullName || 'No especificado' }}</span
+            >
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">{{ userInfo?.email }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-label">Roles:</span>
+            <span class="detail-value">
+              <span
+                *ngFor="let role of userInfo?.roles; let last = last"
+                class="role-text"
+              >
+                {{ getRoleDisplayName(role) }}<span *ngIf="!last">, </span>
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Section -->
+      <div class="security-section">
+        <h4 class="section-title">
+          <i class="icon-shield"></i>
+          Configuración de Seguridad
+        </h4>
+
+        <div class="security-details">
+          <div class="security-item">
+            <div class="security-info">
+              <span class="security-label"
+                >Autenticación de Dos Factores (2FA)</span
+              >
+              <span class="security-description"
+                >Protección adicional para tu cuenta</span
+              >
+            </div>
+            <div class="security-status">
+              <span
+                class="status-badge"
+                [class]="userInfo?.twoFactorEnabled ? 'success' : 'danger'"
+              >
+                {{ userInfo?.twoFactorEnabled ? 'Activado' : 'Desactivado' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="security-item">
+            <div class="security-info">
+              <span class="security-label">Estado de la Cuenta</span>
+              <span class="security-description"
+                >Intentos fallidos de acceso</span
+              >
+            </div>
+            <div class="security-status">
+              <span class="security-value">
+                {{ userInfo?.accessFailedCount || 0 }} intentos fallidos
+              </span>
+              <span
+                *ngIf="(userInfo?.accessFailedCount || 0) === 0"
+                class="status-badge success"
+              >
+                Segura
+              </span>
+              <span
+                *ngIf="(userInfo?.accessFailedCount || 0) > 0"
+                class="status-badge warning"
+              >
+                Revisar
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Info Card -->
+    <div class="info-card">
+      <div class="card-header">
+        <h4 class="card-title">
+          <i class="icon-info-circle"></i>
+          Información Adicional
+        </h4>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="icon-phone"></i>
+            </div>
+            <div class="info-content">
+              <h5>Verificación de Teléfono</h5>
+              <p>
+                <span *ngIf="!userInfo?.phoneNumber"
+                  >No hay número de teléfono registrado</span
+                >
+                <span
+                  *ngIf="userInfo?.phoneNumber && userInfo?.phoneNumberConfirmed"
+                >
+                  Tu número de teléfono está verificado
+                </span>
+                <span
+                  *ngIf="userInfo?.phoneNumber && !userInfo?.phoneNumberConfirmed"
+                >
+                  Tu número de teléfono no está verificado
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="icon-shield"></i>
+            </div>
+            <div class="info-content">
+              <h5>Seguridad de la Cuenta</h5>
+              <p>
+                <span *ngIf="userInfo?.twoFactorEnabled">
+                  Tu cuenta tiene protección 2FA activada
+                </span>
+                <span *ngIf="!userInfo?.twoFactorEnabled">
+                  Considera activar la autenticación de dos factores
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="icon-key"></i>
+            </div>
+            <div class="info-content">
+              <h5>Acceso a la Cuenta</h5>
+              <p>
+                <span *ngIf="(userInfo?.accessFailedCount || 0) === 0">
+                  No hay intentos de acceso fallidos recientes
+                </span>
+                <span *ngIf="(userInfo?.accessFailedCount || 0) > 0">
+                  {{ userInfo?.accessFailedCount }} intentos de acceso fallidos
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -15,115 +15,60 @@ $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
   0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
 // Container principal
-.profile-container {
+.perfil-container {
   padding: 1rem;
   max-width: 1000px;
   margin: 0 auto;
-  min-height: calc(100vh - 140px);
 }
 
 // Header Card
 .header-card {
-  background: linear-gradient(
-    135deg,
-    $primary-color 0%,
-    darken($primary-color, 15%) 100%
-  );
+  background: white;
   border-radius: $border-radius;
-  padding: 2rem;
+  padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: $shadow-lg;
-  color: white;
+  box-shadow: $shadow;
+  border: 1px solid $border-color;
 
-  .header-content {
+  .toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1.5rem;
-  }
+    gap: 1rem;
 
-  .user-avatar {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-
-    .avatar-circle {
-      width: 80px;
-      height: 80px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .user-basic-info {
-      .user-name {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.75rem;
-        font-weight: 700;
-      }
-
-      .user-email {
-        margin: 0 0 0.75rem 0;
-        opacity: 0.9;
-        font-size: 1rem;
-      }
-
-      .user-roles {
+    .toolbar-left {
+      .page-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: $primary-color;
         display: flex;
+        align-items: center;
         gap: 0.5rem;
-        flex-wrap: wrap;
-      }
-    }
-  }
-
-  .header-actions {
-    .btn {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(10px);
-
-      &:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.3);
-        transform: translateY(-2px);
       }
     }
   }
 }
 
-// Role Badges
-.role-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-
-  &.role-admin {
-    background: rgba($danger-color, 0.2);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-
-  &.role-client {
-    background: rgba($success-color, 0.2);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-
-  &.role-default {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
+// Iconos
+.icon-user::before {
+  content: "👤";
+}
+.icon-info::before {
+  content: "ℹ️";
+}
+.icon-shield::before {
+  content: "🛡️";
+}
+.icon-info-circle::before {
+  content: "ℹ️";
+}
+.icon-phone::before {
+  content: "📱";
+}
+.icon-key::before {
+  content: "🔑";
 }
 
 // Loading
@@ -167,211 +112,286 @@ $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
   gap: 2rem;
 }
 
+// Profile Card
+.profile-card {
+  background: white;
+  border-radius: $border-radius;
+  padding: 2rem;
+  box-shadow: $shadow;
+  border: 1px solid $border-color;
+
+  .profile-header {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid $border-color;
+
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+
+      .avatar-circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          $primary-color,
+          lighten($primary-color, 20%)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+        flex-shrink: 0;
+
+        .avatar-text {
+          text-transform: uppercase;
+        }
+      }
+
+      .profile-basic-info {
+        flex: 1;
+
+        .user-name {
+          margin: 0 0 0.5rem 0;
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: $dark-color;
+        }
+
+        .user-email {
+          margin: 0 0 1rem 0;
+          color: $text-muted;
+          font-size: 1rem;
+        }
+
+        .user-roles {
+          display: flex;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+      }
+    }
+  }
+}
+
+// Role Badges
+.role-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.admin {
+    background-color: rgba($danger-color, 0.1);
+    color: $danger-color;
+    border: 1px solid rgba($danger-color, 0.2);
+  }
+
+  &.client {
+    background-color: rgba($primary-color, 0.1);
+    color: $primary-color;
+    border: 1px solid rgba($primary-color, 0.2);
+  }
+
+  &.employee {
+    background-color: rgba($success-color, 0.1);
+    color: $success-color;
+    border: 1px solid rgba($success-color, 0.2);
+  }
+
+  &.default {
+    background-color: rgba($text-muted, 0.1);
+    color: $text-muted;
+    border: 1px solid rgba($text-muted, 0.2);
+  }
+}
+
+// Status Badges
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.25px;
+
+  &.success {
+    background-color: rgba($success-color, 0.1);
+    color: $success-color;
+    border: 1px solid rgba($success-color, 0.2);
+  }
+
+  &.warning {
+    background-color: rgba($warning-color, 0.1);
+    color: darken($warning-color, 20%);
+    border: 1px solid rgba($warning-color, 0.2);
+  }
+
+  &.danger {
+    background-color: rgba($danger-color, 0.1);
+    color: $danger-color;
+    border: 1px solid rgba($danger-color, 0.2);
+  }
+}
+
 // Section Titles
 .section-title {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $dark-color;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: $dark-color;
-  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid $primary-color;
 }
 
-// Stats Section
-.stats-section {
-  background: white;
-  border-radius: $border-radius;
-  padding: 1.5rem;
-  box-shadow: $shadow;
-  border: 1px solid $border-color;
+// Profile Details Section
+.profile-details-section {
+  margin-bottom: 2rem;
+}
 
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-
-  .stat-card {
+.profile-details {
+  .detail-row {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: $light-color;
-    border-radius: $border-radius;
-    border: 1px solid $border-color;
+    padding: 1rem 0;
+    border-bottom: 1px solid $border-color;
 
-    .stat-icon {
-      width: 3rem;
-      height: 3rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-
-      &.admin {
-        background: rgba($danger-color, 0.1);
-        color: $danger-color;
-      }
-
-      &.client {
-        background: rgba($success-color, 0.1);
-        color: $success-color;
-      }
-
-      &.date {
-        background: rgba($info-color, 0.1);
-        color: $info-color;
-      }
-
-      &.login {
-        background: rgba($warning-color, 0.1);
-        color: $warning-color;
-      }
-
-      &.email {
-        background: rgba($primary-color, 0.1);
-        color: $primary-color;
-      }
+    &:last-child {
+      border-bottom: none;
     }
 
-    .stat-info {
-      .stat-value {
-        margin: 0 0 0.25rem 0;
-        font-size: 1rem;
-        font-weight: 600;
-        color: $dark-color;
-      }
-
-      .stat-label {
-        margin: 0;
-        font-size: 0.75rem;
-        color: $text-muted;
-      }
-    }
-  }
-}
-
-// Form Section
-.form-section {
-  background: white;
-  border-radius: $border-radius;
-  padding: 1.5rem;
-  box-shadow: $shadow;
-  border: 1px solid $border-color;
-
-  .profile-form {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-
-  .form-section-group {
-    .form-group-title {
-      margin: 0 0 1rem 0;
-      font-size: 1rem;
+    .detail-label {
       font-weight: 600;
       color: $dark-color;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid $light-color;
-    }
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-
-    .form-group.full-width {
-      grid-column: 1 / -1;
-    }
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .form-label {
-    font-weight: 500;
-    color: $dark-color;
-    font-size: 0.875rem;
-
-    &.required::after {
-      content: " *";
-      color: $danger-color;
-    }
-  }
-
-  .form-input {
-    padding: 0.75rem;
-    border: 1px solid $border-color;
-    border-radius: $border-radius;
-    font-size: 0.875rem;
-    font-family: inherit;
-    transition: all 0.15s ease;
-
-    &:focus {
-      outline: none;
-      border-color: $primary-color;
-      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+      width: 200px;
+      flex-shrink: 0;
     }
 
-    &.readonly {
-      background-color: $light-color;
+    .detail-value {
       color: $text-muted;
-      cursor: not-allowed;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-
-    &.error {
-      border-color: $danger-color;
-      box-shadow: 0 0 0 3px rgba($danger-color, 0.1);
-    }
-  }
-
-  .error-message {
-    color: $danger-color;
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-  }
-
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid $border-color;
   }
 }
 
 // Security Section
 .security-section {
+  .security-details {
+    .security-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background-color: $light-color;
+      border-radius: $border-radius;
+      border: 1px solid $border-color;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .security-info {
+        flex: 1;
+
+        .security-label {
+          display: block;
+          font-weight: 600;
+          color: $dark-color;
+          margin-bottom: 0.25rem;
+        }
+
+        .security-description {
+          font-size: 0.875rem;
+          color: $text-muted;
+        }
+      }
+
+      .security-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .security-value {
+          font-size: 0.875rem;
+          color: $text-muted;
+        }
+      }
+    }
+  }
+}
+
+// Info Card
+.info-card {
   background: white;
   border-radius: $border-radius;
-  padding: 1.5rem;
   box-shadow: $shadow;
   border: 1px solid $border-color;
 
-  .security-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+  .card-header {
+    padding: 1.5rem 1.5rem 0 1.5rem;
+    border-bottom: 1px solid $border-color;
+
+    .card-title {
+      margin: 0 0 1.5rem 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $dark-color;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
   }
 
-  .security-item {
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+// Info Grid
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+
+  .info-item {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 1rem;
     padding: 1rem;
-    background: $light-color;
+    background-color: $light-color;
     border-radius: $border-radius;
     border: 1px solid $border-color;
 
-    .security-info {
-      h4 {
-        margin: 0 0 0.25rem 0;
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba($primary-color, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .info-content {
+      flex: 1;
+
+      h5 {
+        margin: 0 0 0.5rem 0;
         font-size: 1rem;
         font-weight: 600;
         color: $dark-color;
@@ -381,231 +401,79 @@ $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
         margin: 0;
         font-size: 0.875rem;
         color: $text-muted;
+        line-height: 1.4;
       }
     }
   }
 }
 
-// Botones
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 1px solid transparent;
-  border-radius: $border-radius;
-  font-size: 0.875rem;
+// Role Text (for comma-separated roles)
+.role-text {
   font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  &.btn-primary {
-    background-color: $primary-color;
-    color: white;
-    border-color: $primary-color;
-
-    &:hover:not(:disabled) {
-      background-color: darken($primary-color, 10%);
-      border-color: darken($primary-color, 10%);
-      transform: translateY(-1px);
-    }
-  }
-
-  &.btn-outline {
-    background-color: transparent;
-    color: $dark-color;
-    border-color: $border-color;
-
-    &:hover:not(:disabled) {
-      background-color: $light-color;
-    }
-  }
-
-  &.btn-sm {
-    padding: 0.5rem 1rem;
-    font-size: 0.75rem;
-  }
+  color: $primary-color;
 }
 
-.btn-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: $border-radius;
-  transition: background-color 0.15s ease;
-
-  &:hover {
-    background-color: $light-color;
-  }
+// Utility classes
+.text-center {
+  text-align: center;
 }
 
-// Modal
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.modal-container {
-  background: white;
-  border-radius: $border-radius;
-  box-shadow: $shadow-lg;
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem;
-    border-bottom: 1px solid $border-color;
-
-    h3 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: $dark-color;
-    }
-  }
-
-  .modal-body {
-    padding: 1.5rem;
-  }
-
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding: 1.5rem;
-    border-top: 1px solid $border-color;
-    background-color: $light-color;
-  }
-}
-
-// Iconos (usando emojis como fallback)
-.icon-user::before {
-  content: "👤";
-}
-.icon-edit::before {
-  content: "✏️";
-}
-.icon-cancel::before {
-  content: "❌";
-}
-.icon-chart::before {
-  content: "📊";
-}
-.icon-shield::before {
-  content: "🛡️";
-}
-.icon-calendar::before {
-  content: "📅";
-}
-.icon-clock::before {
-  content: "🕐";
-}
-.icon-shopping::before {
-  content: "🛒";
-}
-.icon-user-check::before {
-  content: "✅";
-}
-.icon-check::before {
-  content: "✅";
-}
-.icon-warning::before {
-  content: "⚠️";
-}
-.icon-info::before {
-  content: "ℹ️";
-}
-.icon-lock::before {
-  content: "🔒";
-}
-.icon-key::before {
-  content: "🔑";
-}
-.icon-mail::before {
-  content: "📧";
-}
-.icon-close::before {
-  content: "❌";
-}
-.icon-save::before {
-  content: "💾";
-}
-.icon-loading::before {
-  content: "⏳";
-  animation: spin 1s linear infinite;
+.text-muted {
+  color: $text-muted;
 }
 
 // Responsive
 @media (max-width: 768px) {
-  .profile-container {
+  .perfil-container {
     padding: 0.5rem;
   }
 
-  .header-card {
-    padding: 1.5rem;
+  .profile-card .profile-header .avatar-section {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
 
-    .header-content {
-      flex-direction: column;
-      text-align: center;
-    }
-
-    .user-avatar {
-      flex-direction: column;
-      text-align: center;
-      gap: 1rem;
-
-      .avatar-circle {
-        width: 60px;
-        height: 60px;
-        font-size: 1.5rem;
-      }
+    .profile-basic-info .user-roles {
+      justify-content: center;
     }
   }
 
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
+  .profile-details .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
 
-  .form-row {
-    grid-template-columns: 1fr;
+    .detail-label {
+      width: auto;
+      font-size: 0.875rem;
+    }
+
+    .detail-value {
+      padding-left: 0;
+    }
   }
 
   .security-item {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start !important;
     gap: 1rem;
-    text-align: center;
+
+    .security-status {
+      align-self: flex-end;
+    }
   }
 
-  .form-actions {
+  .info-item {
+    flex-direction: column;
+    text-align: center;
+
+    .info-icon {
+      align-self: center;
+    }
+  }
+
+  .header-card .toolbar {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .modal-container {
-    margin: 0.5rem;
-    max-width: none;
   }
 }

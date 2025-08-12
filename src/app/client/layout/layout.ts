@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MisCompras } from '../mis-compras/mis-compras';
 import { MisManuales } from '../manuales/manuales';
 import { ClientDashboardComponent } from '../dashboard/dashboard';
+import { ProfileComponent } from '../../shared/components/profile/profile';
 
 interface NavItem {
   label: string;
@@ -25,6 +26,7 @@ interface NavItem {
     MisCompras,
     MisManuales,
     ClientDashboardComponent,
+    ProfileComponent,
   ],
   template: `
     <div class="client-layout">
@@ -57,10 +59,7 @@ interface NavItem {
 
           <!-- Perfil Component -->
           <div *ngIf="activeComponent === 'perfil'" class="fade-in">
-            <div class="profile-placeholder">
-              <h2>Mi Perfil</h2>
-              <p>Aquí irá la gestión del perfil del cliente.</p>
-            </div>
+            <app-perfil></app-perfil>
           </div>
 
           <!-- Default: Dashboard cuando no hay componente activo -->
