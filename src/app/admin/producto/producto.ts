@@ -274,16 +274,27 @@ export class Producto implements OnInit {
 
 
   saveProduct(): void {
-  this.submitted = true;
+    this.submitted = true;
 
     if (this.productoForm.valid) {
-      const formData = this.productoForm.value;
+      const formData: any = {
+        Nombre: this.productoForm.value.nombre,
+        Descripcion: this.productoForm.value.descripcion,
+        PrecioSugerido: parseFloat(this.productoForm.value.precioSugerido),
+        Imagen: this.productoForm.value.imagen
+      };
 
-      if (formData.id) {
-        // Actualizar producto existente
-        this.apiService.updateProducto(formData.id, formData).subscribe({
+      if (this.isEditMode && this.productoForm.value.id) {
+        formData.Id = this.productoForm.value.id;
+      }
+
+      console.log('Datos a enviar:', JSON.stringify(formData, null, 2));
+
+      if (this.isEditMode && formData.Id) {
+
+        this.apiService.updateProducto(formData.Id, formData).subscribe({
           next: (updatedProduct) => {
-            const index = this.productos.findIndex((p) => p.id === formData.id);
+            const index = this.productos.findIndex((p) => p.id === formData.Id);
             if (index !== -1) {
               this.productos[index] = {
                 ...updatedProduct,
@@ -303,7 +314,6 @@ export class Producto implements OnInit {
           },
         });
       } else {
-        // Crear nuevo producto
         this.apiService.createProducto(formData).subscribe({
           next: (newProduct) => {
             this.productos.push({
